@@ -6,26 +6,62 @@
     <title>MBT Response Tool</title>
 </head>
 <body>
-    <div class=""container">
-    <h1>MBT Feedback Response Generator</h1>
-    <form method="POST">
-        <label>Email:</label><br>
-        <input type="email" name="email" value="{{ email }}" required><br><br>
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
-        <input type="submit" value="Generate Responses">
-    </form>
-
-    {% if responses %}
-        <h2>Responses:</h2>
-        {% for item in responses %}
-            <div>
-                <p><strong>Feedback:</strong> {{ item.feedback }}</p>
-                <p><strong>AI Response:</strong> {{ item.response }}</p>
-                <hr>
+    <div class="container">
+        <h1>MBT Feedback Response Generator</h1>
+      
+        <form method="POST" enctype="multipart/form-data">
+            <label>Choose input method:</label><br>
+            <input type="radio" name="mode" value="scrape" checked onchange="toggleMode()"> Scrape from MBT
+            <input type="radio" name="mode" value="manual" onchange="toggleMode()"> Paste or Upload Image
+            <br><br>
+      
+            <div id="scrape-section">
+                <label for="email">Email:</label><br>
+                <input type="email" name="email" required><br><br>
+      
+                <label for="password">Password:</label><br>
+                <input type="password" name="password" required><br><br>
             </div>
-        {% endfor %}
-    {% endif %}
-</div>
+      
+            <div id="manual-section" style="display: none;">
+                <label for="manual_feedback">Paste Feedback:</label><br>
+                <textarea name="manual_feedback" rows="5" cols="60"></textarea><br><br>
+      
+                <label for="image">Or upload a screenshot:</label><br>
+                <input type="file" name="image" accept="image/*"><br><br>
+            </div>
+      
+            <input type="submit" value="Generate Responses">
+        </form>
+      
+        {% if responses %}
+            <h2>Responses:</h2>
+            {% for item in responses %}
+                <div>
+                    <p><strong>Feedback:</strong> {{ item.feedback }}</p>
+                    <p><strong>AI Response:</strong> {{ item.response }}</p>
+                    <hr>
+                </div>
+            {% endfor %}
+        {% endif %}
+      </div>
+      
+      <script>
+        function toggleMode() {
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            document.getElementById("scrape-section").style.display = mode === "scrape" ? "block" : "none";
+            document.getElementById("manual-section").style.display = mode === "manual" ? "block" : "none";
+        }
+        
+        // Show spinner on form submit
+        document.querySelector("form").addEventListener("submit", function () {
+            document.getElementById("spinner").style.display = "flex";
+        });
+        </script>
+        
+            <div id="spinner" style="display: none;">
+                <div class="loader"></div>
+            </div>
+            
 </body>
 </html>
