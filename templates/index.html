@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBT Response Tool</title>
 </head>
 <body>
+    <div class=""container">
     <h1>MBT Feedback Response Generator</h1>
     <form method="POST">
         <label>Email:</label><br>
@@ -23,5 +26,6 @@
             </div>
         {% endfor %}
     {% endif %}
+</div>
 </body>
 </html>
