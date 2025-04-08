@@ -35,9 +35,9 @@ html, body {
   }  
   
   body {
-    /* background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80'); */
+    background-image: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
     /* background-image: url('/static/pexels-serenity.jpg'); */
-    background-image: url('/static/pexels-sunrisentrees.jpg');
+    /* background-image: url('/static/pexels-sunrisentrees.jpg'); */
     /* background-image: url('/static/pexels-poolay.jpg'); */
     /* background-image: url('/static/pexels-catnap.jpg'); */
     background-size: cover;
@@ -45,7 +45,7 @@ html, body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     font-family: 'Helvetica Neue', sans-serif;
-    color: #000000;
+    color: #fef9f9;
     display: flex;
     flex-direction: column;
     align-items: center;

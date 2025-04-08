@@ -1,0 +1,83 @@
+<!-- templates/billing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Billing Overview</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #fdfdfd;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .back-link {
+      margin-top: 20px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Billing Overview</h1>
+
+  {% if billing_data %}
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Model</th>
+          <th>Input Tokens</th>
+          <th>Output Tokens</th>
+          <th>Estimated Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set total_cost = 0 %}
+        {% for date, usage in billing_data.items() %}
+          {% for model, tokens in usage.items() %}
+            {% if model == 'gpt-4' %}
+              {% set cost = (tokens.input / 1000 * 0.01) + (tokens.output / 1000 * 0.03) %}
+            {% else %}
+              {% set cost = (tokens.input / 1000 * 0.0005) + (tokens.output / 1000 * 0.0015) %}
+            {% endif %}
+            {% set total_cost = total_cost + cost %}
+            <tr>
+              <td>{{ date }}</td>
+              <td>{{ model }}</td>
+              <td>{{ tokens.input }}</td>
+              <td>{{ tokens.output }}</td>
+              <td>${{ '%.4f' % cost }}</td>
+            </tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p style="margin-top: 1rem; font-weight: bold;">
+      🔢 Estimated Total Cost: ${{ '%.4f' % total_cost }}
+    </p>
+  {% else %}
+    <p>No billing data available yet.</p>
+  {% endif %}
+
+  <a href="/" class="back-link">⬅ Back to Home</a>
+</body>
+</html>
