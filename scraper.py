@@ -9,6 +9,7 @@ def get_feedback(email, password):
     driver = webdriver.Chrome(options=options)
 
     driver.get("https://www.mybodytutor.com/login")
+    time.sleep(2)
 
     driver.find_element(By.NAME, "email").send_keys(email)
     driver.find_element(By.NAME, "password").send_keys(password, Keys.RETURN)

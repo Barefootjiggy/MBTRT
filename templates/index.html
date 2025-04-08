@@ -1,5 +1,27 @@
-<form method="POST">
-    <input type="email" name="email" placeholder="MBT Email">
-    <input type="password" name="password" placeholder="MBT Password">
-    <input type="submit" value="Get Responses">
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MBT Response Tool</title>
+</head>
+<body>
+    <h1>MBT Feedback Response Generator</h1>
+    <form method="POST">
+        <label>Email:</label><br>
+        <input type="email" name="email" value="{{ email }}" required><br><br>
+        <label>Password:</label><br>
+        <input type="password" name="password" required><br><br>
+        <input type="submit" value="Generate Responses">
+    </form>
+
+    {% if responses %}
+        <h2>Responses:</h2>
+        {% for item in responses %}
+            <div>
+                <p><strong>Feedback:</strong> {{ item.feedback }}</p>
+                <p><strong>AI Response:</strong> {{ item.response }}</p>
+                <hr>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
