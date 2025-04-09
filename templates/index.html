@@ -1,111 +1,128 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MBT Response Tool</title>
+  <title>Client Feedback Generator</title>
   <link rel="stylesheet" href="/static/style.css">
-  <script>
-    function estimateTokens() {
-      const feedback = document.querySelector('textarea[name="manual_feedback"]').value;
-      const model = document.getElementById('model').value;
-      const wordCount = feedback.trim().split(/\s+/).length;
-      const inputTokens = Math.round(wordCount * 1.3);
-      const outputTokens = 250;
-      const totalTokens = inputTokens + outputTokens;
-
-      let inputCost = 0;
-      let outputCost = 0;
-
-      if (model === 'gpt-4') {
-        inputCost = inputTokens / 1000 * 0.01;
-        outputCost = outputTokens / 1000 * 0.03;
-      } else {
-        inputCost = inputTokens / 1000 * 0.0005;
-        outputCost = outputTokens / 1000 * 0.0015;
-      }
-
-      const totalCost = inputCost + outputCost;
-
-      document.getElementById("token-estimate").innerHTML =
-        `Estimated Tokens: <strong>${totalTokens}</strong><br>
-         Input: ${inputTokens} tokens ≈ $${inputCost.toFixed(4)}<br>
-         Output: ${outputTokens} tokens ≈ $${outputCost.toFixed(4)}<br>
-         <strong>Total ≈ $${totalCost.toFixed(4)} (${model})</strong>`;
-    }
-  </script>
   <style>
-    .info-icon {
-      cursor: pointer;
-      border: none;
-      background: none;
-      font-size: 1.2em;
-      margin-left: 4px;
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
     }
-    .tooltip {
-      display: none;
-      position: absolute;
-      background-color: #f9f9f9;
-      padding: 6px;
+    .response-block {
+      margin-top: 30px;
+      padding: 20px;
       border: 1px solid #ccc;
-      font-size: 0.9em;
-      max-width: 300px;
+      border-radius: 6px;
+      background-color: #f9f9f9;
     }
-    .info-container:hover .tooltip {
-      display: block;
+    .part-section {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #eef6ff;
+      border-radius: 6px;
+    }
+    .part-section h4 {
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    .tutor-response {
+      background-color: #e6f4ea;
+      border-left: 4px solid #2ecc71;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .form-section {
+      margin-bottom: 20px;
+    }
+    .client-stats {
+      background-color: #f0f0f0;
+      border-left: 5px solid #3b82f6;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .feedback-images img {
+      max-width: 200px;
+      margin: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    button {
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>MBT Response Tool</h1>
-    <form method="POST" enctype="multipart/form-data" oninput="estimateTokens()">
-      <label for="mode">Mode:</label>
-      <select name="mode" id="mode">
-        <option value="scrape">Login and Scrape</option>
-        <option value="manual">Paste Manually</option>
-      </select>
+  <h1>Generate Tutor Response</h1>
 
-      <div id="scrape-fields">
-        <input type="email" name="email" placeholder="Email">
-        <input type="password" name="password" placeholder="Password">
+  <form action="/" method="POST" enctype="multipart/form-data" class="form-section">
+    <label for="mode">Select Mode:</label>
+    <select name="mode" id="mode">
+      <option value="scrape">Scrape Feedback</option>
+      <option value="manual">Manual Entry</option>
+    </select>
+
+    <div id="scrape-fields">
+      <label>Email:</label>
+      <input type="email" name="email">
+      <label>Password:</label>
+      <input type="password" name="password">
+    </div>
+
+    <div id="manual-fields">
+      <label>Manual Feedback:</label>
+      <textarea name="manual_feedback" rows="6" cols="60"></textarea>
+      <label>Upload Feedback Image:</label>
+      <input type="file" name="image">
+    </div>
+
+    <label>Choose Model:</label>
+    <select name="model">
+      <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+      <option value="gpt-4">GPT-4</option>
+    </select>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  {% for item in responses %}
+    {% set outer_index = loop.index0 %}
+    <div class="response-block">
+      <div class="client-stats">
+        <strong>Client Summary:</strong> {{ item.summary }}
       </div>
 
-      <div id="manual-fields">
-        <textarea name="manual_feedback" placeholder="Paste feedback here..."></textarea>
-        <input type="file" name="image" accept="image/*">
-      </div>
+      {% for label, content in item.parts.items() %}
+        <div class="part-section">
+          <h4>{{ label }}</h4>
+          <p>{{ content }}</p>
 
-      <label for="model">AI Model:</label>
-      <div class="info-container" style="display: inline-block; position: relative;">
-        <select name="model" id="model">
-          <option value="gpt-3.5-turbo">GPT-3.5 Turbo (faster, cheaper)</option>
-          <option value="gpt-4">GPT-4 (more human, nuanced)</option>
-        </select>
-        <button type="button" class="info-icon">❓</button>
-        <div class="tooltip">
-          GPT-3.5 costs ~$0.0006/response<br>
-          GPT-4 costs ~$0.014–0.015/response<br>
-          Cost is based on input + output token usage.<br>
-          1,000 tokens ≈ 750 words.
-        </div>
-      </div>
+          {% if item.generated_parts[label] %}
+            <div class="tutor-response">
+              <strong>AI Response to {{ label }}:</strong>
+              <p>{{ item.generated_parts[label] }}</p>
+            </div>
+          {% endif %}
 
-      <div id="token-estimate" style="margin-top: 8px; font-weight: bold;"></div>
-
-      <button type="submit">Generate Responses</button>
-    </form>
-
-    {% if responses %}
-      <h2>Results</h2>
-      {% for item in responses %}
-        <div class="response-block">
-          <p><strong>Feedback:</strong> {{ item.feedback }}</p>
-          <p><strong>Response:</strong> {{ item.response }}</p>
+          <form action="/regenerate" method="POST">
+            <input type="hidden" name="section" value="{{ label }}">
+            <input type="hidden" name="index" value="{{ outer_index }}">
+            <input type="hidden" name="model" value="{{ request.form.model or 'gpt-3.5-turbo' }}">
+            <button type="submit">Regenerate This Section</button>
+          </form>
         </div>
       {% endfor %}
-    {% endif %}
-  </div>
+
+      {% if item.image_url %}
+        <div class="feedback-images">
+          <h4>Client-Submitted Images</h4>
+          <img src="{{ item.image_url }}" alt="Client image">
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <a href="/billing">View Billing Info</a>
 </body>
 </html>
