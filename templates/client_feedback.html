@@ -1,0 +1,84 @@
+<!-- client_feedback.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Client Feedback & AI Response</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .section {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 25px;
+      background-color: #f9f9f9;
+    }
+    .section h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .section .client-text, .section .ai-response {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #eef6ff;
+      border-left: 4px solid #0077cc;
+    }
+    .regenerate-form {
+      margin-top: 10px;
+    }
+    .regenerate-form button {
+      padding: 6px 10px;
+      font-size: 0.9em;
+      border: none;
+      border-radius: 4px;
+      background-color: #0077cc;
+      color: white;
+      cursor: pointer;
+    }
+    .regenerate-form button:hover {
+      background-color: #005fa3;
+    }
+    a.back-link {
+      text-decoration: none;
+      color: #0077cc;
+      font-weight: bold;
+    }
+    a.back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <a href="/dashboard" class="back-link">&larr; Back to Dashboard</a>
+  <h1>Client {{ client_id }} Feedback</h1>
+
+  {% for label, content in parts.items() %}
+    <div class="section">
+      <h3>{{ label }}</h3>
+      <div class="client-text">
+        <strong>Client wrote:</strong><br>
+        {{ content }}
+      </div>
+
+      <div class="ai-response">
+        <strong>AI Response:</strong><br>
+        {{ responses[label] }}
+      </div>
+
+      <form action="/regenerate_part" method="POST" class="regenerate-form">
+        <input type="hidden" name="label" value="{{ label }}">
+        <input type="hidden" name="index" value="0">  <!-- Placeholder -->
+        <input type="hidden" name="model" value="gpt-3.5-turbo">
+        <button type="submit">Regenerate this section</button>
+      </form>
+    </div>
+  {% endfor %}
+</body>
+</html>

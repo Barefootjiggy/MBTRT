@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from scraper import get_feedback, get_clients
+from scraper import get_feedback, get_clients, get_client_feedback_by_id
 from billing_tracker import log_usage
 from PIL import Image
 import pytesseract
@@ -12,6 +12,7 @@ load_dotenv()
 client = OpenAI()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "super-secret")
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 CACHE_FILE = "response_cache.json"
 
@@ -60,9 +61,34 @@ def dashboard():
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
+        session["email"] = email
+        session["password"] = password
         clients = get_clients(email, password)
-
     return render_template("dashboard.html", clients=clients)
+
+@app.route("/client/<client_id>")
+def client_feedback(client_id):
+    email = session.get("email")
+    password = session.get("password")
+
+    if not email or not password:
+        return redirect("/")
+
+    feedback = get_client_feedback_by_id(email, password, client_id)
+
+    parts = {
+        "Part 1: How I Ate": feedback.split("PART 2")[0] if "PART 2" in feedback else feedback,
+        "Part 2: My Movement": feedback.split("PART 2")[-1].split("PART 3")[0] if "PART 3" in feedback else "",
+        "Part 3: How I Feel": feedback.split("PART 3")[-1].split("PART 4")[0] if "PART 4" in feedback else "",
+        "Part 4: The New Me": feedback.split("PART 4")[-1] if "PART 4" in feedback else ""
+    }
+
+    generated_parts = {
+        label: generate_response(content, section=label)
+        for label, content in parts.items()
+    }
+
+    return render_template("client_feedback.html", parts=parts, responses=generated_parts, client_id=client_id)
 
 @app.route("/generate", methods=["GET", "POST"])
 def generate():
@@ -152,8 +178,8 @@ def billing():
 
 @app.route("/logout")
 def logout():
+    session.clear()
     return redirect("/")
 
-# ---------- Main ----------
 if __name__ == "__main__":
     app.run(debug=True)
