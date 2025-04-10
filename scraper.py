@@ -66,21 +66,27 @@ def get_feedback(email, password):
 
 def get_clients(email, password):
     driver = init_driver(email, password)
+
     driver.get("https://www.mydailyfeedback.com/index.php/people/tutor_view")
     time.sleep(3)
 
     clients = []
     try:
-        rows = driver.find_elements(By.CSS_SELECTOR, "table.stack tbody tr")
+        # Find the Reports Waiting For A Response section first
+        section = driver.find_element(By.XPATH, "//h2[contains(text(), 'Reports Waiting For A Response')]/following-sibling::table[1]")
+        rows = section.find_elements(By.TAG_NAME, "tr")
+
         for row in rows:
             try:
-                name = row.find_element(By.TAG_NAME, "a").text
-                link = row.find_element(By.TAG_NAME, "a").get_attribute("href")
+                link_element = row.find_element(By.TAG_NAME, "a")
+                name = link_element.text
+                link = link_element.get_attribute("href")
                 client_id = link.split("/")[-1]
                 clients.append({"name": name, "link": link, "id": client_id})
             except Exception as e:
-                print("Skipping client due to:", str(e))
+                print("Skipping row:", e)
                 continue
+
     except Exception as e:
         print("Error getting clients:", e)
 
@@ -95,7 +101,23 @@ def get_client_feedback_by_id(email, password, client_id):
 
     try:
         full_text = driver.find_element(By.TAG_NAME, "body").text
-        return full_text
+
+        # Parse the text into sections
+        parts = {
+            "Part 1: How I Ate": full_text.split("PART 2")[0] if "PART 2" in full_text else full_text,
+            "Part 2: My Movement": full_text.split("PART 2")[-1].split("PART 3")[0] if "PART 3" in full_text else "",
+            "Part 3: How I Feel": full_text.split("PART 3")[-1].split("PART 4")[0] if "PART 4" in full_text else "",
+            "Part 4: The New Me": full_text.split("PART 4")[-1] if "PART 4" in full_text else ""
+        }
+
+        return parts
+
     except Exception as e:
         print("Error retrieving client feedback:", e)
-        return "[Error] Unable to fetch feedback."
+        return {
+            "Part 1: How I Ate": "[Error]",
+            "Part 2: My Movement": "",
+            "Part 3: How I Feel": "",
+            "Part 4: The New Me": ""
+        }
+

@@ -1,4 +1,3 @@
-<!-- client_feedback.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,6 +48,8 @@
       text-decoration: none;
       color: #0077cc;
       font-weight: bold;
+      display: inline-block;
+      margin-bottom: 20px;
     }
     a.back-link:hover {
       text-decoration: underline;
@@ -62,6 +63,7 @@
   {% for label, content in parts.items() %}
     <div class="section">
       <h3>{{ label }}</h3>
+
       <div class="client-text">
         <strong>Client wrote:</strong><br>
         {{ content }}
@@ -74,7 +76,7 @@
 
       <form action="/regenerate_part" method="POST" class="regenerate-form">
         <input type="hidden" name="label" value="{{ label }}">
-        <input type="hidden" name="index" value="0">  <!-- Placeholder -->
+        <input type="hidden" name="client_id" value="{{ client_id }}">
         <input type="hidden" name="model" value="gpt-3.5-turbo">
         <button type="submit">Regenerate this section</button>
       </form>

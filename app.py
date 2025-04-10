@@ -12,8 +12,8 @@ load_dotenv()
 client = OpenAI()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "super-secret")
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
 CACHE_FILE = "response_cache.json"
 
 # ---------- Utility Functions ----------
@@ -57,34 +57,30 @@ def landing():
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    clients = []
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
         session["email"] = email
         session["password"] = password
         clients = get_clients(email, password)
+        session["clients"] = clients
+    else:
+        clients = session.get("clients", [])
     return render_template("dashboard.html", clients=clients)
 
 @app.route("/client/<client_id>")
 def client_feedback(client_id):
     email = session.get("email")
     password = session.get("password")
-
     if not email or not password:
         return redirect("/")
 
-    feedback = get_client_feedback_by_id(email, password, client_id)
+    # Updated to return structured parts from scraper
+    parts = get_client_feedback_by_id(email, password, client_id)
 
-    parts = {
-        "Part 1: How I Ate": feedback.split("PART 2")[0] if "PART 2" in feedback else feedback,
-        "Part 2: My Movement": feedback.split("PART 2")[-1].split("PART 3")[0] if "PART 3" in feedback else "",
-        "Part 3: How I Feel": feedback.split("PART 3")[-1].split("PART 4")[0] if "PART 4" in feedback else "",
-        "Part 4: The New Me": feedback.split("PART 4")[-1] if "PART 4" in feedback else ""
-    }
-
+    model_name = "gpt-3.5-turbo"
     generated_parts = {
-        label: generate_response(content, section=label)
+        label: generate_response(content, model_name=model_name, section=label)
         for label, content in parts.items()
     }
 
