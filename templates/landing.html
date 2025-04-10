@@ -28,15 +28,30 @@
       border: none;
       border-radius: 5px;
       text-decoration: none;
+      cursor: pointer;
     }
     .cta-button:hover {
       background-color: #005fa3;
+    }
+    input[type="email"], input[type="password"] {
+      padding: 10px;
+      margin: 10px;
+      width: 250px;
+      font-size: 1em;
     }
   </style>
 </head>
 <body>
   <h1>Welcome to TutorFeedback AI</h1>
   <p>Streamline your client feedback process using AI.</p>
-  <a href="/generate" class="cta-button">Start Generating Feedback</a>
+
+  <!-- Login form -->
+  <form action="/dashboard" method="POST">
+    <div style="margin-top: 30px;">
+      <input type="email" name="email" placeholder="Tutor Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit" class="cta-button">View Your Clients</button>
+    </div>
+  </form>
 </body>
 </html>

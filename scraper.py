@@ -52,3 +52,37 @@ def get_feedback(email, password):
 
     driver.quit()
     return feedback_list
+
+def get_clients(email, password):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    driver = webdriver.Chrome(options=options)
+
+    driver.get("https://www.mydailyfeedback.com/index.php/users/login")
+    time.sleep(3)
+
+    email_input = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Email']")
+    password_input = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
+    email_input.send_keys(email)
+    password_input.send_keys(password, Keys.RETURN)
+
+    time.sleep(5)
+    driver.get("https://www.mydailyfeedback.com/index.php/people/tutor_view")
+    time.sleep(3)
+
+    clients = []
+    try:
+        rows = driver.find_elements(By.CSS_SELECTOR, "table.stack tbody tr")
+        for row in rows:
+            try:
+                name = row.find_element(By.TAG_NAME, "a").text
+                link = row.find_element(By.TAG_NAME, "a").get_attribute("href")
+                clients.append({"name": name, "link": link})
+            except Exception as e:
+                print("Skipping client due to:", str(e))
+                continue
+    except Exception as e:
+        print("Error getting clients:", e)
+
+    driver.quit()
+    return clients

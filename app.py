@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from scraper import get_feedback
+from scraper import get_feedback, get_clients
 from billing_tracker import log_usage
 from PIL import Image
 import pytesseract
@@ -15,12 +15,13 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 CACHE_FILE = "response_cache.json"
 
+# ---------- Utility Functions ----------
 def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
     if section:
         prompt = f"Only generate the tutor response for this specific section: {section}. Feedback: '{feedback}'"
     else:
         prompt = f"Respond professionally and empathetically to this client feedback: '{feedback}'"
-    
+
     try:
         chat_completion = client.chat.completions.create(
             model=model_name,
@@ -48,12 +49,21 @@ def load_cache():
             return json.load(f)
     return {}
 
-# 👇 Landing Page Route
+# ---------- Routes ----------
 @app.route("/")
 def landing():
     return render_template("landing.html")
 
-# 👇 Feedback Generator
+@app.route("/dashboard", methods=["GET", "POST"])
+def dashboard():
+    clients = []
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        clients = get_clients(email, password)
+
+    return render_template("dashboard.html", clients=clients)
+
 @app.route("/generate", methods=["GET", "POST"])
 def generate():
     responses = []
@@ -110,7 +120,6 @@ def generate():
 
         cache_data["responses"] = responses
         save_cache(cache_data)
-
     else:
         cache_data = load_cache()
         responses = cache_data.get("responses", [])
@@ -141,5 +150,10 @@ def billing():
             billing_data = json.load(f)
     return render_template("billing.html", billing_data=billing_data)
 
+@app.route("/logout")
+def logout():
+    return redirect("/")
+
+# ---------- Main ----------
 if __name__ == "__main__":
     app.run(debug=True)
