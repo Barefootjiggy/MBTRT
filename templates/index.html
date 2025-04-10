@@ -92,6 +92,11 @@
     <button type="submit">Generate</button>
   </form>
 
+  <form action="/" method="get" style="display:inline;">
+    <button type="submit">Log Out</button>
+  </form>
+  
+
   {% for item in responses %}
     <div class="response-block">
       <div class="client-summary">Client Summary: {{ item.summary }}</div>

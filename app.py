@@ -48,8 +48,14 @@ def load_cache():
             return json.load(f)
     return {}
 
-@app.route("/", methods=["GET", "POST"])
-def home():
+# 👇 Landing Page Route
+@app.route("/")
+def landing():
+    return render_template("landing.html")
+
+# 👇 Feedback Generator
+@app.route("/generate", methods=["GET", "POST"])
+def generate():
     responses = []
     email = ""
     model_name = request.form.get("model", "gpt-3.5-turbo")
@@ -125,7 +131,7 @@ def regenerate_part():
         cache_data["responses"][index]["generated_parts"][label] = new_response
         save_cache(cache_data)
 
-    return redirect("/")
+    return redirect("/generate")
 
 @app.route("/billing")
 def billing():
