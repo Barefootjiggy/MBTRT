@@ -1,27 +1,25 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from openai import OpenAI
-import os
 from dotenv import load_dotenv
-from scraper import get_feedback, get_clients, get_client_feedback_by_id
+from scraper import get_dashboard_sections, get_client_feedback_by_id
 from billing_tracker import log_usage
 from PIL import Image
 import pytesseract
 import json
+import os
 
 load_dotenv()
 client = OpenAI()
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
 CACHE_FILE = "response_cache.json"
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# ---------- Utility Functions ----------
+# ---------- Helper Functions ----------
+
 def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
-    if section:
-        prompt = f"Only generate the tutor response for this specific section: {section}. Feedback: '{feedback}'"
-    else:
-        prompt = f"Respond professionally and empathetically to this client feedback: '{feedback}'"
+    prompt = f"Only generate the tutor response for this specific section: {section}. Feedback: '{feedback}'" if section else f"Respond professionally and empathetically to this client feedback: '{feedback}'"
 
     try:
         chat_completion = client.chat.completions.create(
@@ -35,7 +33,7 @@ def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
         log_usage(model_name, usage.prompt_tokens, usage.completion_tokens)
         return chat_completion.choices[0].message.content.strip()
     except Exception as e:
-        return f"[Mock Response] Feedback received. (Could not contact OpenAI API: {str(e)})"
+        return f"[Error generating response: {str(e)}]"
 
 def extract_text_from_image(image):
     return pytesseract.image_to_string(image)
@@ -50,119 +48,76 @@ def load_cache():
             return json.load(f)
     return {}
 
+def parse_parts(text):
+    return {
+        "Part 1: How I Ate": text.split("PART 2")[0] if "PART 2" in text else text,
+        "Part 2: My Movement": text.split("PART 2")[-1].split("PART 3")[0] if "PART 3" in text else "",
+        "Part 3: How I Feel": text.split("PART 3")[-1].split("PART 4")[0] if "PART 4" in text else "",
+        "Part 4: The New Me": text.split("PART 4")[-1] if "PART 4" in text else ""
+    }
+
 # ---------- Routes ----------
+
 @app.route("/")
 def landing():
     return render_template("landing.html")
 
-@app.route("/dashboard", methods=["GET", "POST"])
+@app.route("/dashboard", methods=["POST", "GET"])
 def dashboard():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        session["email"] = email
-        session["password"] = password
-        clients = get_clients(email, password)
-        session["clients"] = clients
-    else:
-        clients = session.get("clients", [])
-    return render_template("dashboard.html", clients=clients)
+        session["email"] = request.form.get("email")
+        session["password"] = request.form.get("password")
 
-@app.route("/client/<client_id>")
-def client_feedback(client_id):
     email = session.get("email")
     password = session.get("password")
     if not email or not password:
         return redirect("/")
 
-    # Updated to return structured parts from scraper
-    parts = get_client_feedback_by_id(email, password, client_id)
+    sections = get_dashboard_sections(email, password)
+    session["dashboard"] = sections  # Cache in session
+    return render_template("dashboard.html", **sections)
 
+@app.route("/generate/<client_id>/<date>/")
+def generate(client_id, date):
+    email = session.get("email")
+    password = session.get("password")
+    if not email or not password:
+        return redirect("/")
+
+    feedback_text = get_client_feedback_by_id(email, password, client_id, date)
+    parts = parse_parts(feedback_text)
     model_name = "gpt-3.5-turbo"
+
     generated_parts = {
         label: generate_response(content, model_name=model_name, section=label)
         for label, content in parts.items()
     }
 
-    return render_template("client_feedback.html", parts=parts, responses=generated_parts, client_id=client_id)
+    # Save to cache
+    session["current_feedback"] = {
+        "client_id": client_id,
+        "date": date,
+        "parts": parts,
+        "generated": generated_parts
+    }
 
-@app.route("/generate", methods=["GET", "POST"])
-def generate():
-    responses = []
-    email = ""
-    model_name = request.form.get("model", "gpt-3.5-turbo")
-    cache_data = {}
-    image_url = None
+    return render_template("client_feedback.html", client_id=client_id, parts=parts, responses=generated_parts)
 
-    if request.method == "POST":
-        feedback_list = []
-        mode = request.form.get("mode")
-
-        if mode == "scrape":
-            email = request.form.get("email")
-            password = request.form.get("password")
-            feedback_list = get_feedback(email, password)
-
-        elif mode == "manual":
-            manual_feedback = request.form.get("manual_feedback")
-            if manual_feedback:
-                feedback_list.append(manual_feedback)
-
-            if "image" in request.files:
-                image_file = request.files["image"]
-                if image_file and image_file.filename != "":
-                    img_path = os.path.join(app.config['UPLOAD_FOLDER'], image_file.filename)
-                    image_file.save(img_path)
-                    image = Image.open(img_path)
-                    extracted_text = extract_text_from_image(image)
-                    feedback_list.append(extracted_text)
-                    image_url = os.path.join("static/uploads", image_file.filename)
-
-        for feedback in feedback_list:
-            parts = {
-                "Part 1: How I Ate": feedback.split("PART 2")[0] if "PART 2" in feedback else feedback,
-                "Part 2: My Movement": feedback.split("PART 2")[-1].split("PART 3")[0] if "PART 3" in feedback else "",
-                "Part 3: How I Feel": feedback.split("PART 3")[-1].split("PART 4")[0] if "PART 4" in feedback else "",
-                "Part 4: The New Me": feedback.split("PART 4")[-1] if "PART 4" in feedback else ""
-            }
-
-            generated_parts = {
-                label: generate_response(content, model_name=model_name, section=label)
-                for label, content in parts.items()
-            }
-
-            result = {
-                "feedback": feedback,
-                "summary": "Auto-generated summary coming soon...",
-                "parts": parts,
-                "generated_parts": generated_parts,
-                "image_url": image_url
-            }
-            responses.append(result)
-
-        cache_data["responses"] = responses
-        save_cache(cache_data)
-    else:
-        cache_data = load_cache()
-        responses = cache_data.get("responses", [])
-
-    return render_template("index.html", responses=responses, email=email)
-
-@app.route("/regenerate_part", methods=["POST"])
-def regenerate_part():
-    label = request.form["label"]
-    index = int(request.form["index"])
+@app.route("/regenerate_section", methods=["POST"])
+def regenerate_section():
+    label = request.form.get("label")
     model_name = request.form.get("model", "gpt-3.5-turbo")
 
-    cache_data = load_cache()
+    feedback_data = session.get("current_feedback", {})
+    parts = feedback_data.get("parts", {})
+    generated = feedback_data.get("generated", {})
 
-    if "responses" in cache_data and index < len(cache_data["responses"]):
-        feedback = cache_data["responses"][index]["parts"].get(label, "")
-        new_response = generate_response(feedback, model_name=model_name, section=label)
-        cache_data["responses"][index]["generated_parts"][label] = new_response
-        save_cache(cache_data)
+    if label in parts:
+        new_response = generate_response(parts[label], model_name=model_name, section=label)
+        generated[label] = new_response
+        session["current_feedback"]["generated"] = generated
 
-    return redirect("/generate")
+    return redirect(url_for('generate', client_id=feedback_data.get("client_id"), date=feedback_data.get("date")))
 
 @app.route("/billing")
 def billing():

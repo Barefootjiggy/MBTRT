@@ -23,11 +23,12 @@
       margin-top: 0;
       color: #2c3e50;
     }
-    .section .client-text, .section .ai-response {
+    .client-text, .ai-response {
       margin-top: 10px;
       padding: 10px;
       background-color: #eef6ff;
       border-left: 4px solid #0077cc;
+      white-space: pre-wrap;
     }
     .regenerate-form {
       margin-top: 10px;
@@ -48,8 +49,6 @@
       text-decoration: none;
       color: #0077cc;
       font-weight: bold;
-      display: inline-block;
-      margin-bottom: 20px;
     }
     a.back-link:hover {
       text-decoration: underline;
@@ -63,7 +62,7 @@
   {% for label, content in parts.items() %}
     <div class="section">
       <h3>{{ label }}</h3>
-
+      
       <div class="client-text">
         <strong>Client wrote:</strong><br>
         {{ content }}
@@ -74,9 +73,8 @@
         {{ responses[label] }}
       </div>
 
-      <form action="/regenerate_part" method="POST" class="regenerate-form">
+      <form action="/regenerate_section" method="POST" class="regenerate-form">
         <input type="hidden" name="label" value="{{ label }}">
-        <input type="hidden" name="client_id" value="{{ client_id }}">
         <input type="hidden" name="model" value="gpt-3.5-turbo">
         <button type="submit">Regenerate this section</button>
       </form>

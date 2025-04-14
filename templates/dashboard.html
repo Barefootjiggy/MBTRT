@@ -12,56 +12,121 @@
     h1 {
       margin-bottom: 20px;
     }
-    .client-table {
+    .section {
+      margin-bottom: 40px;
+    }
+    .section h2 {
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
+    ul.tutor-activity {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul.tutor-activity li {
+      background: #f7f7f7;
+      border-left: 4px solid #0077cc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    table {
       width: 100%;
       border-collapse: collapse;
     }
-    .client-table th, .client-table td {
-      border: 1px solid #ccc;
+    table th, table td {
       padding: 10px;
+      border: 1px solid #ddd;
     }
-    .client-table th {
-      background-color: #f5f5f5;
+    table th {
+      background-color: #f0f0f0;
     }
-    .client-table tr:hover {
-      background-color: #f0f8ff;
-    }
-    .logout-btn {
-      float: right;
-      padding: 8px 12px;
-      margin-bottom: 10px;
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    .feedback-category {
+      font-weight: bold;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <form action="/logout" method="get">
-    <button class="logout-btn">Logout</button>
+    <button style="float: right; padding: 8px 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px;">Logout</button>
   </form>
-  <h1>Your Clients</h1>
-  <table class="client-table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Last Check-in</th>
-        <th>Weight Loss</th>
-        <th>Consistency</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for client in clients %}
-        <tr>
-          <td><a href="/client/{{ client.id }}">{{ client.name }}</a></td>
-          <td>{{ client.last_checkin }}</td>
-          <td>{{ client.weight_loss }}</td>
-          <td>{{ client.consistency }}</td>
-        </tr>
+  <h1>Welcome to Your Dashboard</h1>
+
+  <!-- Tutor Hub Activity -->
+  <div class="section">
+    <h2>Tutor Hub Activity</h2>
+    <ul class="tutor-activity">
+      {% for message in tutor_hub_activity %}
+        <li>{{ message }}</li>
       {% endfor %}
-    </tbody>
-  </table>
+    </ul>
+  </div>
+
+  <!-- Weekend Reports -->
+  <div class="section">
+    <h2>Weekend Reports</h2>
+    {% if weekend_reports %}
+      <table>
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Dates</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for client in weekend_reports %}
+            <tr>
+              <td><a href="/generate/{{ client.id }}/{{ client.date }}/">{{ client.name }}</a></td>
+              <td>{{ client.date }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No weekend reports found.</p>
+    {% endif %}
+  </div>
+
+  <!-- Reports Waiting For A Response -->
+  <div class="section">
+    <h2>Reports Waiting For A Response</h2>
+    {% if waiting_for_response %}
+      <table>
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Submitted When</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for client in waiting_for_response %}
+            <tr>
+              <td><a href="/generate/{{ client.id }}/{{ client.date }}/">{{ client.name }}</a></td>
+              <td>{{ client.date }}</td>
+              <td>{{ client.submitted_when }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No reports waiting for a response.</p>
+    {% endif %}
+  </div>
+
+  <!-- Feedback Report -->
+  <div class="section">
+    <h2>Feedback Report</h2>
+    {% for group, names in feedback_report.items() %}
+      {% if names %}
+        <div class="feedback-category">{{ group }}:</div>
+        <ul>
+          {% for name in names %}
+            <li>{{ name }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endfor %}
+  </div>
 </body>
 </html>

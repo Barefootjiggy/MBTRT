@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 
+# Store global session driver to persist login across requests
 session_driver = None
 
 def init_driver(email, password):
@@ -25,99 +26,100 @@ def init_driver(email, password):
     time.sleep(3)
     return session_driver
 
-def get_feedback(email, password):
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    driver = webdriver.Chrome(options=options)
-
-    driver.get("https://www.mydailyfeedback.com/index.php/users/login")
+def get_client_feedback_by_id(email, password, client_id, date):
+    driver = init_driver(email, password)
+    feedback_url = f"https://www.mydailyfeedback.com/index.php/feedbacks/tutor_edit/{date}/{client_id}"
+    driver.get(feedback_url)
     time.sleep(3)
 
-    email_input = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Email']")
-    password_input = driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
-    email_input.send_keys(email)
-    password_input.send_keys(password, Keys.RETURN)
-
-    time.sleep(5)
-    feedback_list = []
-
     try:
-        table = driver.find_element(By.CLASS_NAME, "stack")
-        rows = table.find_elements(By.TAG_NAME, "tr")
-        for i in range(len(rows)):
-            try:
-                row = table.find_elements(By.TAG_NAME, "tr")[i]
-                links = row.find_elements(By.TAG_NAME, "a")
-                if not links:
-                    continue
-                href = links[0].get_attribute("href")
-                driver.get(href)
-                time.sleep(3)
-                full_text = driver.find_element(By.TAG_NAME, "body").text
-                feedback_list.append(full_text)
-            except Exception as e:
-                print("Skipping row due to:", str(e))
-                continue
-    except Exception as outer_error:
-        feedback_list = [f"Error scraping feedback table: {str(outer_error)}"]
+        return driver.find_element(By.TAG_NAME, "body").text
+    except Exception as e:
+        print("Error retrieving client feedback:", e)
+        return "[Error] Unable to fetch feedback."
 
-    driver.quit()
-    return feedback_list
-
-def get_clients(email, password):
+def get_dashboard_sections(email, password):
     driver = init_driver(email, password)
-
     driver.get("https://www.mydailyfeedback.com/index.php/people/tutor_view")
     time.sleep(3)
 
-    clients = []
-    try:
-        # Find the Reports Waiting For A Response section first
-        section = driver.find_element(By.XPATH, "//h2[contains(text(), 'Reports Waiting For A Response')]/following-sibling::table[1]")
-        rows = section.find_elements(By.TAG_NAME, "tr")
-
-        for row in rows:
-            try:
-                link_element = row.find_element(By.TAG_NAME, "a")
-                name = link_element.text
-                link = link_element.get_attribute("href")
-                client_id = link.split("/")[-1]
-                clients.append({"name": name, "link": link, "id": client_id})
-            except Exception as e:
-                print("Skipping row:", e)
-                continue
-
-    except Exception as e:
-        print("Error getting clients:", e)
-
-    return clients
-
-def get_client_feedback_by_id(email, password, client_id):
-    driver = init_driver(email, password)
-
-    client_link = f"https://www.mydailyfeedback.com/index.php/people/view/{client_id}"
-    driver.get(client_link)
-    time.sleep(3)
+    tutor_hub_activity = []
+    weekend_reports = []
+    waiting_for_response = []
+    feedback_report = {
+        "Missed 5+ Days": [],
+        "Missed 4 Days": [],
+        "Missed 3 Days": [],
+        "Missed 2 Days": [],
+        "Missed Yesterday": []
+    }
 
     try:
-        full_text = driver.find_element(By.TAG_NAME, "body").text
+        # Tutor Hub Activity (Top 3 only, text-only)
+        try:
+            activity_section = driver.find_element(By.XPATH, "//h6[contains(text(),'Tutor Hub Activity')]/following-sibling::ul[1]")
+            items = activity_section.find_elements(By.TAG_NAME, "li")
+            for item in items[:3]:
+                tutor_hub_activity.append(item.text)
+        except:
+            print("Tutor Hub Activity section not found.")
 
-        # Parse the text into sections
-        parts = {
-            "Part 1: How I Ate": full_text.split("PART 2")[0] if "PART 2" in full_text else full_text,
-            "Part 2: My Movement": full_text.split("PART 2")[-1].split("PART 3")[0] if "PART 3" in full_text else "",
-            "Part 3: How I Feel": full_text.split("PART 3")[-1].split("PART 4")[0] if "PART 4" in full_text else "",
-            "Part 4: The New Me": full_text.split("PART 4")[-1] if "PART 4" in full_text else ""
-        }
+        # Weekend Reports
+        try:
+            weekend_table = driver.find_element(By.XPATH, "//h6[contains(text(),'Weekend Reports')]/following-sibling::table[1]")
+            rows = weekend_table.find_elements(By.TAG_NAME, "tr")[1:]  # Skip header
+            for row in rows:
+                link = row.find_element(By.TAG_NAME, "a")
+                name = link.text
+                href = link.get_attribute("href")
+                date = href.split("/")[-2]
+                client_id = href.split("/")[-1]
+                weekend_reports.append({"name": name, "date": date, "id": client_id})
+        except:
+            print("Weekend Reports section not found.")
 
-        return parts
+        # Reports Waiting For A Response
+        try:
+            waiting_table = driver.find_element(By.XPATH, "//h6[contains(text(),'Reports Waiting For A Response')]/following-sibling::table[1]")
+            rows = waiting_table.find_elements(By.TAG_NAME, "tr")[1:]  # Skip header
+            for row in rows:
+                cells = row.find_elements(By.TAG_NAME, "td")
+                if not cells or len(cells) < 3:
+                    continue
+                link = cells[0].find_element(By.TAG_NAME, "a")
+                name = link.text
+                href = link.get_attribute("href")
+                date = cells[1].text
+                client_id = href.split("/")[-1]
+                date_path = href.split("/")[-2]
+                waiting_for_response.append({
+                    "name": name,
+                    "date": date_path,
+                    "submitted_when": cells[2].text,
+                    "id": client_id
+                })
+        except:
+            print("Reports Waiting For A Response section not found.")
+
+        # Feedback Report (Missed Days)
+        try:
+            report_section = driver.find_element(By.XPATH, "//h5[contains(text(),'Feedback Report')]/..")
+            for category in feedback_report.keys():
+                try:
+                    ul = report_section.find_element(By.XPATH, f".//strong[contains(text(),'{category}')]/following-sibling::ul[1]")
+                    items = ul.find_elements(By.TAG_NAME, "li")
+                    feedback_report[category] = [item.text for item in items]
+                except:
+                    continue
+        except:
+            print("Feedback Report section not found.")
 
     except Exception as e:
-        print("Error retrieving client feedback:", e)
-        return {
-            "Part 1: How I Ate": "[Error]",
-            "Part 2: My Movement": "",
-            "Part 3: How I Feel": "",
-            "Part 4: The New Me": ""
-        }
+        print("Error parsing dashboard:", e)
 
+    return {
+        "tutor_hub_activity": tutor_hub_activity,
+        "weekend_reports": weekend_reports,
+        "waiting_for_response": waiting_for_response,
+        "feedback_report": feedback_report
+    }
