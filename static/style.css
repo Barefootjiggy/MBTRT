@@ -4,36 +4,6 @@ html, body {
   padding: 0;
 }
 
-@media (max-width: 768px) {
-  body {
-    padding-top: 20px;
-  }
-
-  .container {
-    width: 90%;
-    padding: 15px;
-  }
-
-  h1 {
-    font-size: 2.8rem;
-    text-align: center;
-  }
-
-  label, input, textarea {
-    font-size: 1.8rem;
-    width: 100%;
-  }
-
-  input[type="submit"] {
-    font-size: 1.8rem;
-    padding: 10px 20px;
-  }
-
-  textarea {
-    min-height: 120px;
-  }
-}
-
 body {
   background-color: #FDF0F0;
   font-family: 'Helvetica Neue', sans-serif;
@@ -50,6 +20,7 @@ body {
   background-attachment: fixed;
 }
 
+/* General Container */
 .container {
   background-color: rgba(255, 255, 255, 0.9);
   padding: 30px;
@@ -60,7 +31,7 @@ body {
   margin-bottom: 40px;
 }
 
-/* Centered spinner container */
+/* Spinner */
 #spinner {
   position: fixed;
   top: 0;
@@ -73,8 +44,6 @@ body {
   justify-content: center;
   align-items: center;
 }
-
-/* Spinner animation */
 .loader {
   border: 10px solid #f3f3f3;
   border-top: 10px solid #F1B4BB;
@@ -83,16 +52,15 @@ body {
   height: 80px;
   animation: spin 1.2s linear infinite;
 }
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
+/* Feedback Styling */
 .part-section {
   margin-top: 30px;
 }
-
 .feedback-box {
   background-color: #ffffff;
   border: 1px solid #ccc;
@@ -102,7 +70,6 @@ body {
   font-size: 15px;
   color: #132043;
 }
-
 .ai-response-box {
   background-color: #F1B4BB33;
   border: 1px solid #F1B4BB;
@@ -111,7 +78,6 @@ body {
   font-size: 15px;
   color: #132043;
 }
-
 .ai-response-box h3 {
   color: #1F4172;
   margin-bottom: 10px;
@@ -127,7 +93,6 @@ button, .cta-button, input[type="submit"] {
   cursor: pointer;
   font-weight: bold;
 }
-
 button:hover, .cta-button:hover, input[type="submit"]:hover {
   background-color: #005fa3;
 }
@@ -138,14 +103,12 @@ a {
   font-weight: bold;
   text-decoration: none;
 }
-
 a:hover {
   color: #005fa3;
   text-decoration: underline;
 }
 
 /* ===== Landing Page Styles ===== */
-
 .login-wrapper {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 40px;
@@ -155,18 +118,15 @@ a:hover {
   margin: auto;
   text-align: center;
 }
-
 .login-wrapper h1 {
   color: #1F4172;
   font-size: 2.6rem;
   margin-bottom: 10px;
 }
-
 .login-wrapper p {
   color: #555;
   margin-bottom: 30px;
 }
-
 .login-wrapper input[type="email"],
 .login-wrapper input[type="password"] {
   width: 90%;
@@ -176,7 +136,6 @@ a:hover {
   border-radius: 6px;
   border: 1px solid #ccc;
 }
-
 .login-wrapper input[type="submit"] {
   background-color: #1F4172;
   color: #fff;
@@ -186,11 +145,11 @@ a:hover {
   border-radius: 6px;
   cursor: pointer;
 }
-
 .login-wrapper input[type="submit"]:hover {
   background-color: #005fa3;
 }
 
+/* ===== Dashboard Styling ===== */
 .dashboard-wrapper {
   background-color: rgba(255, 255, 255, 0.95);
   padding: 40px;
@@ -201,26 +160,22 @@ a:hover {
   text-align: center;
   color: #132043;
 }
-
 .dashboard-wrapper h2 {
   color: #1F4172;
   margin-bottom: 20px;
 }
-
 .section-title {
   color: #1F4172;
   font-weight: bold;
   margin-top: 30px;
   font-size: 1.3rem;
 }
-
 .dashboard-list,
 .dashboard-list li {
   list-style: none;
   padding: 0;
   margin: 10px 0;
 }
-
 .dashboard-list li {
   background-color: #FDF0F0;
   padding: 12px;
@@ -228,23 +183,21 @@ a:hover {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   font-size: 0.95rem;
 }
-
 a.client-link {
   text-decoration: none;
   color: #1F4172;
   font-weight: bold;
 }
-
 a.client-link:hover {
   text-decoration: underline;
   color: #005fa3;
 }
 
+/* Logout Button */
 .logout-btn {
   text-align: right;
   margin: 10px 20px 0 0;
 }
-
 .button-link {
   display: inline-block;
   background-color: #1F4172;
@@ -255,7 +208,46 @@ a.client-link:hover {
   font-weight: bold;
   transition: background-color 0.3s ease;
 }
-
 .button-link:hover {
   background-color: #132043;
+}
+
+/* ===== Responsive for Mobile ===== */
+@media (max-width: 768px) {
+  body {
+    padding-top: 30px;
+  }
+
+  .login-wrapper {
+    width: 95%;
+    padding: 30px;
+  }
+
+  .login-wrapper h1 {
+    font-size: 2.2rem;
+  }
+
+  .login-wrapper p {
+    font-size: 1rem;
+  }
+
+  .login-wrapper input,
+  .login-wrapper button,
+  .login-wrapper input[type="submit"] {
+    font-size: 1.1rem;
+    padding: 14px;
+  }
+
+  .dashboard-wrapper {
+    padding: 25px;
+    width: 95%;
+  }
+
+  .dashboard-wrapper h2 {
+    font-size: 1.8rem;
+  }
+
+  .dashboard-wrapper table {
+    font-size: 0.95rem;
+  }
 }
