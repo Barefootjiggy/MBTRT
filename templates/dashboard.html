@@ -1,132 +1,107 @@
+<!-- templates/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Client Dashboard</title>
+  <title>Dashboard</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
+    .dashboard-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      max-width: 900px;
+      margin: 60px auto;
     }
-    h1 {
-      margin-bottom: 20px;
+    .dashboard-container h2,
+    .dashboard-container h3 {
+      color: #1F4172;
     }
-    .section {
-      margin-bottom: 40px;
-    }
-    .section h2 {
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 5px;
-    }
-    ul.tutor-activity {
-      list-style: none;
-      padding-left: 0;
-    }
-    ul.tutor-activity li {
-      background: #f7f7f7;
-      border-left: 4px solid #0077cc;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    table {
+    .callout table {
       width: 100%;
       border-collapse: collapse;
     }
-    table th, table td {
-      padding: 10px;
-      border: 1px solid #ddd;
+    .callout table th,
+    .callout table td {
+      padding: 8px;
+      text-align: left;
     }
-    table th {
-      background-color: #f0f0f0;
+    .callout table tr:nth-child(even) {
+      background-color: #f2f2f2;
     }
-    .feedback-category {
-      font-weight: bold;
-      margin-top: 20px;
+    .callout a {
+      color: #1F4172;
+      text-decoration: none;
+    }
+    .callout a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <form action="/logout" method="get">
-    <button style="float: right; padding: 8px 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px;">Logout</button>
-  </form>
-  <h1>Welcome to Your Dashboard</h1>
+  <div class="logout-btn">
+    <a href="/logout" class="button-link">Logout</a>
+  </div>  
 
-  <!-- Tutor Hub Activity -->
-  <div class="section">
-    <h2>Tutor Hub Activity</h2>
-    <ul class="tutor-activity">
-      {% for message in tutor_hub_activity %}
-        <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+  <div class="dashboard-container">
+    <h2>Welcome to Your Dashboard</h2>
 
-  <!-- Weekend Reports -->
-  <div class="section">
-    <h2>Weekend Reports</h2>
-    {% if weekend_reports %}
-      <table>
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Dates</th>
-          </tr>
-        </thead>
-        <tbody>
+    <!-- Tutor Hub Activity -->
+    <h3>Tutor Hub Activity</h3>
+    <div class="callout">
+      <ul>
+        {% for item in tutor_hub_activity[:3] %}
+          <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Weekend Reports -->
+    <h3>Weekend Reports</h3>
+    <div class="callout">
+      {% if weekend_reports %}
+        <table>
+          <tr><th>Name</th><th>Date</th></tr>
           {% for client in weekend_reports %}
             <tr>
               <td><a href="/generate/{{ client.id }}/{{ client.date }}/">{{ client.name }}</a></td>
               <td>{{ client.date }}</td>
             </tr>
           {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>No weekend reports found.</p>
-    {% endif %}
-  </div>
+        </table>
+      {% else %}
+        <p>No weekend reports available.</p>
+      {% endif %}
+    </div>
 
-  <!-- Reports Waiting For A Response -->
-  <div class="section">
-    <h2>Reports Waiting For A Response</h2>
-    {% if waiting_for_response %}
-      <table>
-        <thead>
-          <tr>
-            <th>Client</th>
-            <th>Date</th>
-            <th>Submitted When</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for client in waiting_for_response %}
+    <!-- Reports Waiting For A Response -->
+    <h3>Reports Waiting For A Response</h3>
+    <div class="callout">
+      {% if reports_waiting %}
+        <table>
+          <tr><th>Name</th><th>Date</th></tr>
+          {% for client in reports_waiting %}
             <tr>
               <td><a href="/generate/{{ client.id }}/{{ client.date }}/">{{ client.name }}</a></td>
               <td>{{ client.date }}</td>
-              <td>{{ client.submitted_when }}</td>
             </tr>
           {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>No reports waiting for a response.</p>
-    {% endif %}
-  </div>
-
-  <!-- Feedback Report -->
-  <div class="section">
-    <h2>Feedback Report</h2>
-    {% for group, names in feedback_report.items() %}
-      {% if names %}
-        <div class="feedback-category">{{ group }}:</div>
-        <ul>
-          {% for name in names %}
-            <li>{{ name }}</li>
-          {% endfor %}
-        </ul>
+        </table>
+      {% else %}
+        <p>No reports waiting for a response.</p>
       {% endif %}
-    {% endfor %}
+    </div>
+
+    <!-- Feedback Report -->
+    <h3>Feedback Report</h3>
+    <div class="callout">
+      {% for category, names in feedback_report.items() %}
+        {% if names %}
+          <p><strong>{{ category }}:</strong><br>{{ names | join(', ') }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
   </div>
 </body>
 </html>

@@ -1,57 +1,65 @@
-<!-- landing.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome to TutorFeedback AI</title>
+  <title>Welcome | TutorFeedback AI</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    .login-wrapper {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      margin: auto;
       text-align: center;
-      padding: 80px 20px;
     }
-    h1 {
-      font-size: 2.5em;
+
+    .login-wrapper h1 {
+      color: #1F4172;
+      font-size: 2.6rem;
       margin-bottom: 10px;
     }
-    p {
-      font-size: 1.2em;
+
+    .login-wrapper p {
       color: #555;
+      margin-bottom: 30px;
     }
-    .cta-button {
-      margin-top: 40px;
-      padding: 15px 30px;
-      font-size: 1.2em;
-      background-color: #0077cc;
-      color: white;
+
+    .login-wrapper input[type="email"],
+    .login-wrapper input[type="password"] {
+      width: 90%;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .login-wrapper input[type="submit"] {
+      background-color: #1F4172;
+      color: #fff;
       border: none;
-      border-radius: 5px;
-      text-decoration: none;
+      padding: 12px 25px;
+      font-size: 1rem;
+      border-radius: 6px;
       cursor: pointer;
     }
-    .cta-button:hover {
+
+    .login-wrapper input[type="submit"]:hover {
       background-color: #005fa3;
-    }
-    input[type="email"], input[type="password"] {
-      padding: 10px;
-      margin: 10px;
-      width: 250px;
-      font-size: 1em;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to TutorFeedback AI</h1>
-  <p>Streamline your client feedback process using AI.</p>
-
-  <!-- Login form -->
-  <form action="/dashboard" method="POST">
-    <div style="margin-top: 30px;">
-      <input type="email" name="email" placeholder="Tutor Email" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit" class="cta-button">View Your Clients</button>
-    </div>
-  </form>
+  <div class="login-wrapper">
+    <h1>Welcome to TutorFeedback AI</h1>
+    <p>Streamline your client feedback process using AI.</p>
+    <form method="POST" action="/dashboard">
+      <input type="email" name="email" placeholder="Email" required><br>
+      <input type="password" name="password" placeholder="Password" required><br>
+      <input type="submit" value="View Your Clients">
+    </form>
+  </div>
 </body>
 </html>
