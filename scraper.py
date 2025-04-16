@@ -17,11 +17,9 @@ def init_driver(email, password):
     session_driver.get("https://www.mydailyfeedback.com/index.php/users/login")
     time.sleep(2)
 
-    # 🧠 Immediately interact with the elements after locating them
     email_input = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Email']")
     email_input.send_keys(email)
 
-    # Re-locate password input just before using it (avoids stale element)
     password_input = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
     password_input.send_keys(password)
     password_input.send_keys(Keys.RETURN)
@@ -46,7 +44,6 @@ def get_dashboard_sections(email, password):
     driver.get("https://www.mydailyfeedback.com/index.php/people/tutor_view")
     time.sleep(3)
 
-    tutor_hub_activity = []
     weekend_reports = []
     waiting_for_response = []
     feedback_report = {
@@ -58,19 +55,10 @@ def get_dashboard_sections(email, password):
     }
 
     try:
-        # Tutor Hub Activity (Top 3 only, text-only)
-        try:
-            activity_section = driver.find_element(By.XPATH, "//h6[contains(text(),'Tutor Hub Activity')]/following-sibling::ul[1]")
-            items = activity_section.find_elements(By.TAG_NAME, "li")
-            for item in items[:3]:
-                tutor_hub_activity.append(item.text)
-        except:
-            print("Tutor Hub Activity section not found.")
-
         # Weekend Reports
         try:
             weekend_table = driver.find_element(By.XPATH, "//h6[contains(text(),'Weekend Reports')]/following-sibling::table[1]")
-            rows = weekend_table.find_elements(By.TAG_NAME, "tr")[1:]  # Skip header
+            rows = weekend_table.find_elements(By.TAG_NAME, "tr")[1:]
             for row in rows:
                 link = row.find_element(By.TAG_NAME, "a")
                 name = link.text
@@ -78,13 +66,13 @@ def get_dashboard_sections(email, password):
                 date = href.split("/")[-2]
                 client_id = href.split("/")[-1]
                 weekend_reports.append({"name": name, "date": date, "id": client_id})
-        except:
-            print("Weekend Reports section not found.")
+        except Exception as e:
+            print("Weekend Reports section not found:", e)
 
         # Reports Waiting For A Response
         try:
             waiting_table = driver.find_element(By.XPATH, "//h6[contains(text(),'Reports Waiting For A Response')]/following-sibling::table[1]")
-            rows = waiting_table.find_elements(By.TAG_NAME, "tr")[1:]  # Skip header
+            rows = waiting_table.find_elements(By.TAG_NAME, "tr")[1:]
             for row in rows:
                 cells = row.find_elements(By.TAG_NAME, "td")
                 if not cells or len(cells) < 3:
@@ -101,10 +89,10 @@ def get_dashboard_sections(email, password):
                     "submitted_when": cells[2].text,
                     "id": client_id
                 })
-        except:
-            print("Reports Waiting For A Response section not found.")
+        except Exception as e:
+            print("Reports Waiting For A Response section not found:", e)
 
-        # Feedback Report (Missed Days)
+        # Feedback Report
         try:
             report_section = driver.find_element(By.XPATH, "//h5[contains(text(),'Feedback Report')]/..")
             for category in feedback_report.keys():
@@ -114,14 +102,13 @@ def get_dashboard_sections(email, password):
                     feedback_report[category] = [item.text for item in items]
                 except:
                     continue
-        except:
-            print("Feedback Report section not found.")
+        except Exception as e:
+            print("Feedback Report section not found:", e)
 
     except Exception as e:
         print("Error parsing dashboard:", e)
 
     return {
-        "tutor_hub_activity": tutor_hub_activity,
         "weekend_reports": weekend_reports,
         "waiting_for_response": waiting_for_response,
         "feedback_report": feedback_report
