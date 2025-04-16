@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 
-# Store global session driver to persist login across requests
 session_driver = None
 
 def init_driver(email, password):
@@ -18,10 +17,14 @@ def init_driver(email, password):
     session_driver.get("https://www.mydailyfeedback.com/index.php/users/login")
     time.sleep(2)
 
+    # 🧠 Immediately interact with the elements after locating them
     email_input = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Email']")
-    password_input = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
     email_input.send_keys(email)
-    password_input.send_keys(password, Keys.RETURN)
+
+    # Re-locate password input just before using it (avoids stale element)
+    password_input = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
+    password_input.send_keys(password)
+    password_input.send_keys(Keys.RETURN)
 
     time.sleep(3)
     return session_driver
