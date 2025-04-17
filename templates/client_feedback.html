@@ -56,13 +56,24 @@
     .regenerate-form {
       text-align: right;
     }
+    .header-buttons {
+    display: flex;
+    gap: 20px;       /* increase spacing */
+    align-items: center;
+  }
+
   </style>
 </head>
 <body>
   <div class="container">
     <div class="feedback-header">
       <h1>Client {{ client_id }} Feedback — {{ date }}</h1>
-      <a href="{{ url_for('dashboard') }}" class="button-link">← Back to Dashboard</a>
+      <div class="header-buttons">
+        <!-- Back to Dashboard -->
+        <a href="{{ url_for('dashboard') }}" class="button-link">← Back to Dashboard</a>
+        <!-- New Logout button -->
+        <a href="{{ url_for('logout') }}" class="button-link">🚪 Logout</a>
+      </div>
     </div>
 
     <!-- Choose model and regenerate all -->
@@ -84,8 +95,6 @@ Specific
 </select>
 <button type="submit" class="button-link">Regenerate All</button>
 </form>
-
-
 
     <!-- Usage & Cost Breakdown -->
     {% if usage %}
