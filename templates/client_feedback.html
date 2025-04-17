@@ -136,5 +136,28 @@
       </div>
     {% endfor %}
   </div>
+
+  <div id="spinner">
+    <div class="loader"></div>
+  </div>
+
+  <script>
+    // 1) hide the spinner when the page is fully loaded
+    window.addEventListener('load', () => {
+      document.getElementById('spinner').style.display = 'none';
+    });
+  
+    // 2) show the spinner whenever the user clicks any link or submits any form
+    document.addEventListener('click', e => {
+      // if it’s a link…
+      if (e.target.closest('a')) {
+        document.getElementById('spinner').style.display = 'flex';
+      }
+    });
+    document.addEventListener('submit', e => {
+      document.getElementById('spinner').style.display = 'flex';
+    });
+  </script>  
+
 </body>
 </html>
