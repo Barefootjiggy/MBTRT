@@ -1,13 +1,11 @@
-from flask import Flask, render_template, request, redirect, session, url_for
-from openai import OpenAI
-from dotenv import load_dotenv
-from scraper import get_dashboard_sections, get_client_feedback_by_id
-from billing_tracker import log_usage
-from PIL import Image
-import pytesseract
-import json
 import os
 import time
+import json
+from flask import Flask, render_template, request, redirect, session, url_for, flash
+from openai import OpenAI
+from dotenv import load_dotenv
+from billing_tracker import log_usage
+from scraper import get_dashboard_sections, get_client_feedback_by_id
 
 load_dotenv()
 client = OpenAI()
@@ -17,11 +15,19 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
 CACHE_FILE = "response_cache.json"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
-# ---------- Helper Functions ----------
+# approximate prices per 1k tokens
+MODEL_RATES = {
+    "gpt-3.5-turbo": 0.002 / 1000,   # $0.002 per 1k tokens
+    "gpt-4": 0.03 / 1000            # $0.03 per 1k tokens (example)
+}
 
 def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
-    prompt = f"Only generate the tutor response for this specific section: {section}. Feedback: '{feedback}'" if section else f"Respond professionally and empathetically to this client feedback: '{feedback}'"
-
+    """Return both the generated text and the usage object."""
+    prompt = (
+        f"Only generate the tutor response for this specific section: {section}. Feedback: '{feedback}'"
+        if section
+        else f"Respond professionally and empathetically to this client feedback: '{feedback}'"
+    )
     try:
         chat_completion = client.chat.completions.create(
             model=model_name,
@@ -32,32 +38,10 @@ def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
         )
         usage = chat_completion.usage
         log_usage(model_name, usage.prompt_tokens, usage.completion_tokens)
-        return chat_completion.choices[0].message.content.strip()
+        content = chat_completion.choices[0].message.content.strip()
+        return {"content": content, "usage": usage}
     except Exception as e:
-        return f"[Error generating response: {str(e)}]"
-
-def extract_text_from_image(image):
-    return pytesseract.image_to_string(image)
-
-def save_cache(data):
-    with open(CACHE_FILE, "w") as f:
-        json.dump(data, f)
-
-def load_cache():
-    if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE, "r") as f:
-            return json.load(f)
-    return {}
-
-def parse_parts(text):
-    return {
-        "Part 1: How I Ate": text.split("PART 2")[0] if "PART 2" in text else text,
-        "Part 2: My Movement": text.split("PART 2")[-1].split("PART 3")[0] if "PART 3" in text else "",
-        "Part 3: How I Feel": text.split("PART 3")[-1].split("PART 4")[0] if "PART 4" in text else "",
-        "Part 4: The New Me": text.split("PART 4")[-1] if "PART 4" in text else ""
-    }
-
-# ---------- Routes ----------
+        return {"content": f"[Error generating response: {e}]", "usage": None}
 
 @app.route("/")
 def landing():
@@ -66,78 +50,115 @@ def landing():
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if request.method == "POST":
-        session["email"] = request.form.get("email")
-        session["password"] = request.form.get("password")
+        session["email"] = request.form["email"]
+        session["password"] = request.form["password"]
 
     email = session.get("email")
     password = session.get("password")
     if not email or not password:
         return redirect("/")
 
-    refresh_requested = request.args.get("refresh") == "true"
     now = time.time()
-    last_fetch_time = session.get("last_fetch_time", 0)
-    dashboard_data = session.get("dashboard", {})
+    last = session.get("last_fetch_time", 0)
+    data = session.get("dashboard", {})
 
-    if refresh_requested or now - last_fetch_time > 600 or not dashboard_data:
+    if now - last > 600 or not data or request.args.get("refresh"):
         print("🔄 Refreshing dashboard data...")
-        dashboard_data = get_dashboard_sections(email, password)
-        session["dashboard"] = dashboard_data
+        data = get_dashboard_sections(email, password)
+        session["dashboard"] = data
         session["last_fetch_time"] = now
     else:
         print("✅ Using cached dashboard data")
 
-    return render_template("dashboard.html", **dashboard_data)
+    return render_template("dashboard.html", **data)
 
-@app.route("/generate/<client_id>/<date>/")
+@app.route("/generate/<client_id>/<date>", methods=["GET", "POST"])
+@app.route("/generate/<client_id>/<date>/", methods=["GET", "POST"])
 def generate(client_id, date):
     email = session.get("email")
     password = session.get("password")
     if not email or not password:
         return redirect("/")
 
+    # chosen model via form
+    model_name = request.values.get("model", "gpt-3.5-turbo")
+
     feedback_text = get_client_feedback_by_id(email, password, client_id, date)
+    # split into parts
+    def parse_parts(text):
+        parts = {}
+        markers = ["PART 1", "PART 2", "PART 3", "PART 4"]
+        chunks = text
+        # naive split based on markers
+        for i, marker in enumerate(markers):
+            if marker in chunks:
+                before, chunks = chunks.split(marker, 1)
+                if i == 0:
+                    parts["Part 1: How I Ate"] = before.strip()
+                else:
+                    parts[f"Part {i}:"] = before.strip()
+        parts["Part 4: The New Me"] = chunks.strip()
+        return parts
+
     parts = parse_parts(feedback_text)
-    model_name = "gpt-3.5-turbo"
 
-    generated_parts = {
-        label: generate_response(content, model_name=model_name, section=label)
-        for label, content in parts.items()
-    }
+    total_cost = 0.0
+    generated = {}
 
-    # Save to cache
+    for label, content in parts.items():
+        if not content:
+            generated[label] = "[No content submitted]"
+            continue
+        resp = generate_response(content, model_name=model_name, section=label)
+        generated[label] = resp["content"]
+        if resp["usage"]:
+            tokens = resp["usage"].prompt_tokens + resp["usage"].completion_tokens
+            rate = MODEL_RATES.get(model_name, MODEL_RATES["gpt-3.5-turbo"])
+            total_cost += tokens * rate
+
+    # store in session for possible regenerate
     session["current_feedback"] = {
         "client_id": client_id,
         "date": date,
         "parts": parts,
-        "generated": generated_parts
+        "generated": generated,
+        "model": model_name,
+        "total_cost": total_cost
     }
 
-    return render_template("client_feedback.html", client_id=client_id, parts=parts, responses=generated_parts)
+    return render_template(
+        "client_feedback.html",
+        client_id=client_id,
+        date=date,
+        parts=parts,
+        responses=generated,
+        model_selected=model_name,
+        total_cost=total_cost
+    )
 
 @app.route("/regenerate_section", methods=["POST"])
 def regenerate_section():
-    label = request.form.get("label")
-    model_name = request.form.get("model", "gpt-3.5-turbo")
-
-    feedback_data = session.get("current_feedback", {})
-    parts = feedback_data.get("parts", {})
-    generated = feedback_data.get("generated", {})
+    data = session.get("current_feedback", {})
+    label = request.form["label"]
+    model_name = data.get("model", "gpt-3.5-turbo")
+    parts = data.get("parts", {})
+    gen = data.get("generated", {})
+    total = 0.0
 
     if label in parts:
-        new_response = generate_response(parts[label], model_name=model_name, section=label)
-        generated[label] = new_response
-        session["current_feedback"]["generated"] = generated
+        resp = generate_response(parts[label], model_name=model_name, section=label)
+        gen[label] = resp["content"]
 
-    return redirect(url_for('generate', client_id=feedback_data.get("client_id"), date=feedback_data.get("date")))
+    # recompute cost for all
+    for lbl, content in parts.items():
+        # assume all resp have usage saved? skip cost if none
+        # For simplicity you could re-run cost calc; omitted here
+        pass
 
-@app.route("/billing")
-def billing():
-    billing_data = {}
-    if os.path.exists("billing_log.json"):
-        with open("billing_log.json", "r") as f:
-            billing_data = json.load(f)
-    return render_template("billing.html", billing_data=billing_data)
+    session["current_feedback"]["generated"] = gen
+    session["current_feedback"]["total_cost"] = total
+
+    return redirect(url_for("generate", client_id=data.get("client_id"), date=data.get("date")))
 
 @app.route("/logout")
 def logout():

@@ -2,83 +2,139 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Client Feedback & AI Response</title>
+  <title>Client {{ client_id }} Feedback — {{ date }}</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
-    }
-    h1 {
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
     }
-    .section {
-      border: 1px solid #ddd;
-      border-radius: 6px;
+    .feedback-header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #1F4172;
+    }
+    .feedback-header .button-link {
+      margin-left: auto;
+    }
+    .model-form {
+      margin: 20px 0;
+      text-align: right;
+    }
+    .usage-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+    .usage-table th,
+    .usage-table td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    .part-section {
+      margin-bottom: 30px;
+    }
+    .feedback-box {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
       padding: 15px;
-      margin-bottom: 25px;
-      background-color: #f9f9f9;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      color: #132043;
     }
-    .section h3 {
-      margin-top: 0;
-      color: #2c3e50;
-    }
-    .client-text, .ai-response {
-      margin-top: 10px;
-      padding: 10px;
-      background-color: #eef6ff;
-      border-left: 4px solid #0077cc;
-      white-space: pre-wrap;
+    .ai-response-box {
+      background-color: #F1B4BB33;
+      border: 1px solid #F1B4BB;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      color: #132043;
     }
     .regenerate-form {
-      margin-top: 10px;
-    }
-    .regenerate-form button {
-      padding: 6px 10px;
-      font-size: 0.9em;
-      border: none;
-      border-radius: 4px;
-      background-color: #0077cc;
-      color: white;
-      cursor: pointer;
-    }
-    .regenerate-form button:hover {
-      background-color: #005fa3;
-    }
-    a.back-link {
-      text-decoration: none;
-      color: #0077cc;
-      font-weight: bold;
-    }
-    a.back-link:hover {
-      text-decoration: underline;
+      text-align: right;
     }
   </style>
 </head>
 <body>
-  <a href="/dashboard" class="back-link">&larr; Back to Dashboard</a>
-  <h1>Client {{ client_id }} Feedback</h1>
-
-  {% for label, content in parts.items() %}
-    <div class="section">
-      <h3>{{ label }}</h3>
-      
-      <div class="client-text">
-        <strong>Client wrote:</strong><br>
-        {{ content }}
-      </div>
-
-      <div class="ai-response">
-        <strong>AI Response:</strong><br>
-        {{ responses[label] }}
-      </div>
-
-      <form action="/regenerate_section" method="POST" class="regenerate-form">
-        <input type="hidden" name="label" value="{{ label }}">
-        <input type="hidden" name="model" value="gpt-3.5-turbo">
-        <button type="submit">Regenerate this section</button>
-      </form>
+  <div class="container">
+    <div class="feedback-header">
+      <h1>Client {{ client_id }} Feedback — {{ date }}</h1>
+      <a href="{{ url_for('dashboard') }}" class="button-link">← Back to Dashboard</a>
     </div>
-  {% endfor %}
+
+    <!-- Choose model and regenerate all -->
+    <form method="get"
+          action="{{ url_for('generate', client_id=client_id, date=date) }}"
+          class="model-form">
+      <label for="model">Model:</label>
+      <select name="model" id="model">
+        <option value="gpt-3.5-turbo"
+          {% if model_selected == 'gpt-3.5-turbo' %}selected{% endif %}>
+          GPT‑3.5 Turbo
+        </option>
+        <option value="gpt-4"
+          {% if model_selected == 'gpt-4' %}selected{% endif %}>
+          GPT‑4
+        </option>
+      </select>
+      <button type="submit" class="button-link">Regenerate All</button>
+    </form>
+
+    <!-- Usage & Cost Breakdown -->
+    {% if usage %}
+      <h2>Usage &amp; Cost</h2>
+      <table class="usage-table">
+        <thead>
+          <tr>
+            <th>Section</th>
+            <th>Prompt Tokens</th>
+            <th>Completion Tokens</th>
+            <th>Cost (USD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in usage %}
+          <tr>
+            <td>{{ u.label }}</td>
+            <td>{{ u.prompt_tokens }}</td>
+            <td>{{ u.completion_tokens }}</td>
+            <td>${{ '%.4f'|format(u.cost) }}</td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td colspan="3"><strong>Total</strong></td>
+            <td><strong>${{ '%.4f'|format(total_cost) }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    {% endif %}
+
+    <!-- Each feedback part -->
+    {% for label, original in parts.items() %}
+      <div class="part-section">
+        <h3>{{ label }}</h3>
+        <div class="feedback-box">
+          <strong>Client wrote:</strong><br>{{ original }}
+        </div>
+        <div class="ai-response-box">
+          <strong>AI Response:</strong><br>{{ responses[label] }}
+        </div>
+
+        <!-- Regenerate individual section -->
+        <form method="post"
+              action="{{ url_for('regenerate_section') }}"
+              class="regenerate-form">
+          <input type="hidden" name="label" value="{{ label }}">
+          <input type="hidden" name="model" value="{{ model_selected }}">
+          <button type="submit" class="button-link">
+            Regenerate This Section
+          </button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
 </body>
 </html>
