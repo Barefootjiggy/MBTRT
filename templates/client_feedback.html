@@ -66,22 +66,26 @@
     </div>
 
     <!-- Choose model and regenerate all -->
-    <form method="get"
-          action="{{ url_for('generate', client_id=client_id, date=date) }}"
-          class="model-form">
-      <label for="model">Model:</label>
-      <select name="model" id="model">
-        <option value="gpt-3.5-turbo"
-          {% if model_selected == 'gpt-3.5-turbo' %}selected{% endif %}>
-          GPT‑3.5 Turbo
-        </option>
-        <option value="gpt-4"
-          {% if model_selected == 'gpt-4' %}selected{% endif %}>
-          GPT‑4
-        </option>
-      </select>
-      <button type="submit" class="button-link">Regenerate All</button>
-    </form>
+<form method="get"
+action="{{ url_for('generate', client_id=client_id, date=date) }}"
+class="model-form">
+<!-- relabelled -->
+<label for="model">Response:</label>
+<select name="model" id="model">
+<!-- keep the same values, just change the display text -->
+<option value="gpt-3.5-turbo"
+{% if model_selected=='gpt-3.5-turbo' %}selected{% endif %}>
+General
+</option>
+<option value="gpt-4"
+{% if model_selected=='gpt-4' %}selected{% endif %}>
+Specific
+</option>
+</select>
+<button type="submit" class="button-link">Regenerate All</button>
+</form>
+
+
 
     <!-- Usage & Cost Breakdown -->
     {% if usage %}
@@ -116,11 +120,13 @@
     {% for label, original in parts.items() %}
       <div class="part-section">
         <h3>{{ label }}</h3>
+
         <div class="feedback-box">
-          <strong>Client wrote:</strong><br>{{ original }}
+          {{ original }}
         </div>
+
         <div class="ai-response-box">
-          <strong>AI Response:</strong><br>{{ responses[label] }}
+          {{ responses[label] }}
         </div>
 
         <!-- Regenerate individual section -->
