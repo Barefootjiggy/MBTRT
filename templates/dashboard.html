@@ -14,32 +14,89 @@
       max-width: 900px;
       margin: 60px auto;
     }
+
     .dashboard-container h2,
     .dashboard-container h3 {
       color: #1F4172;
+      margin-bottom: 15px;
     }
+
+    .callout {
+      margin-bottom: 30px;
+    }
+
     .callout table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 10px;
     }
+
     .callout table th,
     .callout table td {
-      padding: 8px;
+      padding: 10px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
+      font-size: 0.95rem;
     }
+
     .callout table tr:nth-child(even) {
-      background-color: #f2f2f2;
+      background-color: #f9f9f9;
     }
+
     .callout a {
       color: #1F4172;
       text-decoration: none;
+      font-weight: bold;
     }
+
     .callout a:hover {
       text-decoration: underline;
+    }
+
+    .button-link {
+      display: inline-block;
+      background-color: #1F4172;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      margin: 5px;
+    }
+
+    .button-link:hover {
+      background-color: #132043;
+    }
+
+    .logout-btn {
+      text-align: right;
+      margin: 10px 20px 0 0;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 25px;
+        width: 95%;
+      }
+
+      .callout table th,
+      .callout table td {
+        font-size: 0.85rem;
+      }
+
+      .dashboard-container h2 {
+        font-size: 1.8rem;
+      }
     }
   </style>
 </head>
 <body>
+
+  <form action="/dashboard?refresh=true" method="post" style="text-align:right; margin-bottom: 10px;">
+    <button type="submit" class="button-link">🔁 Refresh Now</button>
+  </form>  
+
   <div class="logout-btn">
     <a href="/logout" class="button-link">Logout</a>
   </div>  
@@ -68,13 +125,14 @@
     <!-- Reports Waiting For A Response -->
     <h3>Reports Waiting For A Response</h3>
     <div class="callout">
-      {% if reports_waiting %}
+      {% if waiting_for_response %}
         <table>
-          <tr><th>Name</th><th>Date</th></tr>
-          {% for client in reports_waiting %}
+          <tr><th>Name</th><th>Date</th><th>Submitted</th></tr>
+          {% for client in waiting_for_response %}
             <tr>
               <td><a href="/generate/{{ client.id }}/{{ client.date }}/">{{ client.name }}</a></td>
               <td>{{ client.date }}</td>
+              <td>{{ client.submitted_when }}</td>
             </tr>
           {% endfor %}
         </table>

@@ -7,6 +7,7 @@ from PIL import Image
 import pytesseract
 import json
 import os
+import time
 
 load_dotenv()
 client = OpenAI()
@@ -70,12 +71,35 @@ def dashboard():
 
     email = session.get("email")
     password = session.get("password")
+
     if not email or not password:
         return redirect("/")
 
-    sections = get_dashboard_sections(email, password)
-    session["dashboard"] = sections  # Cache in session
-    return render_template("dashboard.html", **sections)
+    now = time.time()
+    last_fetch_time = session.get("last_fetch_time", 0)
+    dashboard_data = session.get("dashboard")
+
+    should_refresh = (not dashboard_data) or (now - last_fetch_time > 600)
+
+    if should_refresh:
+        print("🔄 Refreshing dashboard data...")
+        dashboard_data = get_dashboard_sections(email, password)
+
+        if dashboard_data:
+            print(f"✅ Dashboard updated:")
+            print(f"  - Weekend Reports: {len(dashboard_data.get('weekend_reports', []))}")
+            print(f"  - Reports Waiting: {len(dashboard_data.get('waiting_for_response', []))}")
+            print(f"  - Feedback Report Categories: {len(dashboard_data.get('feedback_report', {}))}")
+
+            session["dashboard"] = dashboard_data
+            session["last_fetch_time"] = now
+        else:
+            print("⚠️ Warning: Dashboard data fetch returned empty.")
+            dashboard_data = {}
+    else:
+        print("✅ Using cached dashboard data")
+
+    return render_template("dashboard.html", **dashboard_data)
 
 @app.route("/generate/<client_id>/<date>/")
 def generate(client_id, date):
