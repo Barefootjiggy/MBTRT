@@ -93,9 +93,9 @@
 </head>
 <body>
 
-  <form action="/dashboard?refresh=true" method="post" style="text-align:right; margin-bottom: 10px;">
-    <button type="submit" class="button-link">🔁 Refresh Now</button>
-  </form>  
+  <form action="/dashboard?refresh=true" method="get" style="text-align:right; margin-bottom: 10px;">
+    <button type="submit" class="button-link" onclick="sessionStorage.setItem('justRefreshed', 'true')">🔁 Refresh Now</button>
+  </form>      
 
   <div class="logout-btn">
     <a href="/logout" class="button-link">Logout</a>
@@ -151,5 +151,30 @@
       {% endfor %}
     </div>
   </div>
+
+  <div id="toast" class="toast">Dashboard refreshed successfully!</div>
+
+  <script>
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.className = "toast show";
+      setTimeout(() => {
+        toast.className = "toast"; // hide after 3s
+      }, 3000);
+    }
+  
+    // Optional: trigger toast if a URL parameter says so
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("refreshed") === "true") {
+      showToast("✅ Dashboard refreshed successfully!");
+    }
+    if (sessionStorage.getItem("justRefreshed") === "true") {
+  showToast("✅ Dashboard refreshed successfully!");
+  sessionStorage.removeItem("justRefreshed");
+}
+  </script>
+  
+
 </body>
 </html>

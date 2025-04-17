@@ -251,3 +251,26 @@ a.client-link:hover {
     font-size: 0.95rem;
   }
 }
+
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #1F4172;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 16px;
+  position: fixed;
+  z-index: 999;
+  left: 50%;
+  bottom: 30px;
+  font-size: 16px;
+  transition: visibility 0s, opacity 0.5s ease-in-out;
+  opacity: 0;
+}
+
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+}

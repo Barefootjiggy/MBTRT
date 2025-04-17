@@ -63,7 +63,7 @@ def parse_parts(text):
 def landing():
     return render_template("landing.html")
 
-@app.route("/dashboard", methods=["POST", "GET"])
+@app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if request.method == "POST":
         session["email"] = request.form.get("email")
@@ -71,31 +71,19 @@ def dashboard():
 
     email = session.get("email")
     password = session.get("password")
-
     if not email or not password:
         return redirect("/")
 
+    refresh_requested = request.args.get("refresh") == "true"
     now = time.time()
     last_fetch_time = session.get("last_fetch_time", 0)
-    dashboard_data = session.get("dashboard")
+    dashboard_data = session.get("dashboard", {})
 
-    should_refresh = (not dashboard_data) or (now - last_fetch_time > 600)
-
-    if should_refresh:
+    if refresh_requested or now - last_fetch_time > 600 or not dashboard_data:
         print("🔄 Refreshing dashboard data...")
         dashboard_data = get_dashboard_sections(email, password)
-
-        if dashboard_data:
-            print(f"✅ Dashboard updated:")
-            print(f"  - Weekend Reports: {len(dashboard_data.get('weekend_reports', []))}")
-            print(f"  - Reports Waiting: {len(dashboard_data.get('waiting_for_response', []))}")
-            print(f"  - Feedback Report Categories: {len(dashboard_data.get('feedback_report', {}))}")
-
-            session["dashboard"] = dashboard_data
-            session["last_fetch_time"] = now
-        else:
-            print("⚠️ Warning: Dashboard data fetch returned empty.")
-            dashboard_data = {}
+        session["dashboard"] = dashboard_data
+        session["last_fetch_time"] = now
     else:
         print("✅ Using cached dashboard data")
 
