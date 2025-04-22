@@ -7,12 +7,11 @@ from dotenv import load_dotenv
 from billing_tracker import log_usage
 from scraper import get_dashboard_sections, get_client_feedback_by_id
 
-# ——— MOCK FEEDBACK OVERRIDE ———
 MOCK_FEEDBACK = """
-Hello, this is a mock intro for your feedback page.
-PART 1: Today I ate an apple and a salad.
-PART 2: I walked 3 miles.
-PART 3: I feel energized!
+Hello, this is a mock intro for your feedback page.  
+PART 1: Today I ate an apple and a salad.  
+PART 2: I walked 3 miles.  
+PART 3: I feel energized!  
 PART 4: I plan to keep this up tomorrow.
 """
 
@@ -21,7 +20,6 @@ def get_client_feedback_by_id(email, password, client_id, date):
     if client_id == "MOCK123":
         return MOCK_FEEDBACK
     return original_get(email, password, client_id, date)
-# ————————————————
 
 load_dotenv()
 client = OpenAI()
@@ -33,11 +31,12 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
 # approximate prices per token
 MODEL_RATES = {
-    "gpt-3.5-turbo": 0.002 / 1000,
-    "gpt-4":         0.03  / 1000
+    "gpt-3.5-turbo": 0.002 / 1000,   # $0.002 per 1k tokens
+    "gpt-4":         0.03  / 1000    # $0.03 per 1k tokens
 }
 
 def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
+    """Return both the generated text and the usage object."""
     prompt = (
         f"Only generate the tutor response for this specific section: {section}. Feedback: '{feedback}'"
         if section
@@ -52,6 +51,7 @@ def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
             ]
         )
         usage = chat_completion.usage
+        # log for billing dashboard, etc.
         log_usage(model_name, usage.prompt_tokens, usage.completion_tokens)
         content = chat_completion.choices[0].message.content.strip()
         return {"content": content, "usage": usage}
@@ -77,11 +77,12 @@ def dashboard():
     last      = session.get("last_fetch_time", 0)
     data      = session.get("dashboard", {})
 
+    # refresh every 10m or on manual ?refresh
     if now - last > 600 or not data or request.args.get("refresh"):
         print("🔄 Refreshing dashboard data...")
         data = get_dashboard_sections(email, password)
-        session["dashboard"]       = data
-        session["last_fetch_time"] = now
+        session["dashboard"]        = data
+        session["last_fetch_time"]  = now
     else:
         print("✅ Using cached dashboard data")
 
@@ -95,41 +96,26 @@ def generate(client_id, date):
     if not email or not password:
         return redirect("/")
 
-    model_name    = request.values.get("model", "gpt-3.5-turbo")
+    # pick up model from form or default
+    model_name = request.values.get("model", "gpt-3.5-turbo")
+
     feedback_text = get_client_feedback_by_id(email, password, client_id, date)
 
+    # simple PART-based splitter
     def parse_parts(text):
         parts   = {}
         markers = ["PART 1", "PART 2", "PART 3", "PART 4"]
-        titles  = [
-            "Client Feedback Info",
-            "Part 1: How I Ate",
-            "Part 2: My Movement",
-            "Part 3: How I Feel",
-            "Part 4: The New Me"
-        ]
-
-        # if PART 1 is missing but others exist, inject it
-        if markers[0] not in text and any(m in text for m in markers[1:]):
-            text = f"{markers[0]}: {text}"
-
-        # preamble → Client Feedback Info
-        if markers[0] in text:
-            preamble, text = text.split(markers[0], 1)
-            parts[titles[0]] = preamble.strip()
-        else:
-            parts[titles[0]] = text.strip()
-            text = ""
-
-        # slice out each PART chunk
-        for idx, marker in enumerate(markers, start=1):
-            if marker in text:
-                chunk, text = text.split(marker, 1)
-                parts[titles[idx]] = chunk.strip()
-            else:
-                parts[titles[idx]] = text.strip()
-                break
-
+        chunks  = text
+        for i, marker in enumerate(markers):
+            if marker in chunks:
+                before, chunks = chunks.split(marker, 1)
+                label = (
+                    "Part 1: How I Ate"
+                    if i == 0
+                    else f"Part {i}:"
+                )
+                parts[label] = before.strip()
+        parts["Part 4: The New Me"] = chunks.strip()
         return parts
 
     parts      = parse_parts(feedback_text)
@@ -146,10 +132,10 @@ def generate(client_id, date):
         generated[label] = resp["content"]
 
         if resp["usage"]:
-            p    = resp["usage"].prompt_tokens
-            c    = resp["usage"].completion_tokens
-            rate = MODEL_RATES.get(model_name, MODEL_RATES["gpt-3.5-turbo"])
-            cost = (p + c) * rate
+            p     = resp["usage"].prompt_tokens
+            c     = resp["usage"].completion_tokens
+            rate  = MODEL_RATES.get(model_name, MODEL_RATES["gpt-3.5-turbo"])
+            cost  = (p + c) * rate
             total_cost += cost
             usage_list.append({
                 "label":             label,
@@ -158,6 +144,7 @@ def generate(client_id, date):
                 "cost":              cost
             })
 
+    # stash for potential section‐only regenerate
     session["current_feedback"] = {
         "client_id":   client_id,
         "date":        date,
@@ -205,6 +192,7 @@ def regenerate_section():
             })
             total_cost += cost
 
+    # merge back in—(you could decide to recalc full list here)
     session["current_feedback"].update({
         "generated":  gen,
         "usage":      usage_list,
@@ -220,26 +208,29 @@ def logout():
     session.clear()
     return redirect("/")
 
+if __name__ == "__main__":
+    app.run(debug=True)
+
 @app.route("/mock_dashboard")
 def mock_dashboard():
+    # one dummy client waiting for a response
     session["dashboard"] = {
         "weekend_reports": [],
-        "waiting_for_response": [{
-            "name":            "Jane Doe (Silver)",
-            "date":            "2025-04-22",
-            "submitted_when":  "just now",
-            "id":              "MOCK123"
-        }],
+        "waiting_for_response": [
+            {
+                "name": "Jane Doe (Silver)",
+                "date": "2025-04-22",
+                "submitted_when": "just now",
+                "id": "MOCK123"
+            }
+        ],
         "feedback_report": {
-            "Missed 5+ Days":  [],
-            "Missed 4 Days":   [],
-            "Missed 3 Days":   [],
-            "Missed 2 Days":   [],
-            "Missed Yesterday":[]
+            "Missed 5+ Days": [],
+            "Missed 4 Days": [],
+            "Missed 3 Days": [],
+            "Missed 2 Days": [],
+            "Missed Yesterday": []
         }
     }
     session["last_fetch_time"] = time.time()
     return redirect(url_for("dashboard"))
-
-if __name__ == "__main__":
-    app.run(debug=True)
