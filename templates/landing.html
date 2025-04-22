@@ -60,7 +60,13 @@
       <input type="password" name="password" placeholder="Password" required><br>
       <input type="submit" value="View Your Clients">
     </form>
+    <form action="{{ url_for('demo_login') }}" method="get" style="margin-top:1em;">
+      <button type="submit" class="cta-button">🔍 Try Demo Mode</button>
+    </form>
   </div>
+
+  
+  
 
   <div id="spinner">
     <div class="loader"></div>

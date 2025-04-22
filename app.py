@@ -62,6 +62,14 @@ def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
 def landing():
     return render_template("landing.html")
 
+@app.route("/demo_login")
+def demo_login():
+    # give them dummy credentials so dashboard() won't redirect back to "/"
+    session["email"] = "DEMO_USER"
+    session["password"] = "DEMO_PASS"
+    # now point them at the mock data you already defined
+    return redirect(url_for("mock_dashboard"))
+
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if request.method == "POST":
