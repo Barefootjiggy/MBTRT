@@ -25,7 +25,7 @@ load_dotenv()
 client = OpenAI()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev_secret")
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 CACHE_FILE = "response_cache.json"
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
