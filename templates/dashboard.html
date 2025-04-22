@@ -93,13 +93,19 @@
 </head>
 <body>
 
-  <form action="/dashboard?refresh=true" method="get" style="text-align:right; margin-bottom: 10px;">
-    <button type="submit" class="button-link" onclick="sessionStorage.setItem('justRefreshed', 'true')">🔁 Refresh Now</button>
-  </form>      
+  <div style="text-align: right; margin-bottom: 10px;">
+    <form action="{{ url_for('dashboard') }}?refresh=true" method="post" style="display: inline-block;">
+      <button type="submit" class="button-link">🔁 Refresh Now</button>
+    </form>
+
+    <form action="{{ url_for('mock_dashboard') }}" method="get" style="display: inline-block; margin-left: 8px;">
+      <button type="submit" class="button-link">🔬 Load Mock Data</button>
+    </form>
+  </div>
 
   <div class="logout-btn">
-    <a href="/logout" class="button-link">Logout</a>
-  </div>  
+    <a href="{{ url_for('logout') }}" class="button-link">🚪 Logout</a>
+  </div>
 
   <div class="dashboard-container">
     <h2>Welcome to Your Dashboard</h2>
