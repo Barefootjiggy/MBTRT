@@ -209,7 +209,7 @@ def logout():
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run
 
 @app.route("/mock_dashboard")
 def mock_dashboard():
