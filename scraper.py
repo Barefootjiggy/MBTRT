@@ -1,7 +1,10 @@
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import time
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 
 session_driver = None
 
@@ -10,21 +13,34 @@ def init_driver(email, password):
     if session_driver:
         return session_driver
 
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    session_driver = webdriver.Chrome(options=options)
+    # grab Heroku buildpack paths
+    chrome_bin   = os.getenv("GOOGLE_CHROME_BIN")
+    driver_path  = os.getenv("CHROMEDRIVER_PATH")
 
+    # configure ChromeOptions
+    options = Options()
+    if chrome_bin:
+        options.binary_location = chrome_bin
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    # configure Service
+    service = Service(executable_path=driver_path)
+
+    # spin up the driver
+    session_driver = webdriver.Chrome(service=service, options=options)
+
+    # log in
     session_driver.get("https://www.mydailyfeedback.com/index.php/users/login")
     time.sleep(2)
-
-    email_input = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Email']")
-    email_input.send_keys(email)
-
-    password_input = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
-    password_input.send_keys(password)
-    password_input.send_keys(Keys.RETURN)
-
+    session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Email']").send_keys(email)
+    pwd = session_driver.find_element(By.CSS_SELECTOR, "input[placeholder='Password']")
+    pwd.send_keys(password)
+    pwd.send_keys(Keys.RETURN)
     time.sleep(3)
+
     return session_driver
 
 def get_client_feedback_by_id(email, password, client_id, date):
