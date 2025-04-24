@@ -1,7 +1,7 @@
 import os
 import time
 import json
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from openai import OpenAI
 from dotenv import load_dotenv
 from billing_tracker import log_usage
@@ -210,6 +210,36 @@ def regenerate_section():
     return redirect(url_for("generate",
                             client_id=data.get("client_id"),
                             date=data.get("date")))
+
+@app.route("/api/regenerate_section", methods=["POST"])
+def api_regenerate_section():
+    """
+    Accepts JSON { label: "Part 2: My Movement" },
+    re-runs generate_response for that single section,
+    updates session, and returns the new content.
+    """
+    payload = request.get_json() or {}
+    label   = payload.get("label")
+    cf      = session.get("current_feedback", {})
+    parts   = cf.get("parts", {})
+    model   = cf.get("model", "gpt-3.5-turbo")
+
+    if label not in parts:
+        return jsonify({"error": "Unknown section"}), 400
+
+    # regenerate just that chunk
+    resp = generate_response(parts[label], model_name=model, section=label)
+    new_content = resp["content"]
+
+    # update session cache
+    cf["generated"][label] = new_content
+    session["current_feedback"] = cf
+
+    return jsonify({
+        "label":   label,
+        "content": new_content,
+        # if you want to return cost/usage just compute and include here
+    })
 
 @app.route("/logout")
 def logout():

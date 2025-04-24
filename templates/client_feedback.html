@@ -134,20 +134,18 @@ Specific
           {{ original }}
         </div>
 
-        <div class="ai-response-box">
+        <div class="ai-response-box" id="resp-{{ loop.index }}">
+          <strong>AI Response:</strong><br>
           {{ responses[label] }}
         </div>
-
-        <!-- Regenerate individual section -->
-        <form method="post"
-              action="{{ url_for('regenerate_section') }}"
-              class="regenerate-form">
-          <input type="hidden" name="label" value="{{ label }}">
-          <input type="hidden" name="model" value="{{ model_selected }}">
-          <button type="submit" class="button-link">
-            Regenerate This Section
-          </button>
-        </form>
+        
+        <button
+          type="button"
+          class="button-link regenerate-btn"
+          data-label="{{ label }}"
+          data-target="resp-{{ loop.index }}">
+          🔄 Regenerate This Section
+        </button>
       </div>
     {% endfor %}
   </div>
@@ -173,6 +171,39 @@ Specific
       document.getElementById('spinner').style.display = 'flex';
     });
   </script>  
+
+<script>
+  document.querySelectorAll(".regenerate-btn").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      e.preventDefault();
+      const label = btn.dataset.label;
+      const respId = btn.dataset.target;
+      const box = document.getElementById(respId);
+
+      // show a mini‐spinner in the box
+      const old = box.innerHTML;
+      box.innerHTML = "<em>Generating…</em>";
+
+      try {
+        const res = await fetch("/api/regenerate_section", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ label })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+
+        box.innerHTML = "<strong>AI Response:</strong><br>" 
+                        + data.content;
+      } catch (err) {
+        console.error(err);
+        box.innerHTML = old 
+          + "<p style='color:red;'>Error regenerating this section.</p>";
+      }
+    });
+  });
+</script>
+
 
 </body>
 </html>
