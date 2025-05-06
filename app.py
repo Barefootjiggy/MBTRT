@@ -175,6 +175,7 @@ def generate(client_id, date):
     )
 
 @app.route("/regenerate_section", methods=["POST"])
+
 def regenerate_section():
     data       = session.get("current_feedback", {})
     label      = request.form.get("label")

@@ -53,7 +53,7 @@
       margin-bottom: 10px;
       color: #132043;
     }
-    .regenerate-form {
+.regenerate-form {
       text-align: right;
     }
     .header-buttons {
@@ -69,34 +69,28 @@
     <div class="feedback-header">
       <h1>Client {{ client_id }} Feedback — {{ date }}</h1>
       <div class="header-buttons">
-        <!-- Back to Dashboard -->
         <a href="{{ url_for('dashboard') }}" class="button-link">← Back to Dashboard</a>
-        <!-- New Logout button -->
         <a href="{{ url_for('logout') }}" class="button-link">🚪 Logout</a>
       </div>
     </div>
 
-    <!-- Choose model and regenerate all -->
-<form method="get"
-action="{{ url_for('generate', client_id=client_id, date=date) }}"
-class="model-form">
-<!-- relabelled -->
-<label for="model">Response:</label>
-<select name="model" id="model">
-<!-- keep the same values, just change the display text -->
-<option value="gpt-3.5-turbo"
-{% if model_selected=='gpt-3.5-turbo' %}selected{% endif %}>
-General
-</option>
-<option value="gpt-4"
-{% if model_selected=='gpt-4' %}selected{% endif %}>
-Specific
-</option>
-</select>
-<button type="submit" class="button-link">Regenerate All</button>
-</form>
+    <form method="get"
+          action="{{ url_for('generate', client_id=client_id, date=date) }}"
+          class="model-form">
+      <label for="model">Response:</label>
+      <select name="model" id="model">
+        <option value="gpt-3.5-turbo"
+          {% if model_selected=='gpt-3.5-turbo' %}selected{% endif %}>
+          General
+        </option>
+        <option value="gpt-4"
+          {% if model_selected=='gpt-4' %}selected{% endif %}>
+          Specific
+        </option>
+      </select>
+      <button type="submit" class="button-link">Regenerate All</button>
+    </form>
 
-    <!-- Usage & Cost Breakdown -->
     {% if usage %}
       <h2>Usage &amp; Cost</h2>
       <table class="usage-table">
@@ -125,20 +119,16 @@ Specific
       </table>
     {% endif %}
 
-    <!-- Each feedback part -->
     {% for label, original in parts.items() %}
       <div class="part-section">
         <h3>{{ label }}</h3>
-
         <div class="feedback-box">
           {{ original }}
         </div>
-
         <div class="ai-response-box" id="resp-{{ loop.index }}">
           <strong>AI Response:</strong><br>
           {{ responses[label] }}
         </div>
-        
         <button
           type="button"
           class="button-link regenerate-btn"
@@ -155,55 +145,53 @@ Specific
   </div>
 
   <script>
-    // 1) hide the spinner when the page is fully loaded
+    // Hide spinner on full page load
     window.addEventListener('load', () => {
       document.getElementById('spinner').style.display = 'none';
     });
-  
-    // 2) show the spinner whenever the user clicks any link or submits any form
+    // Show spinner on link clicks or non-AJAX form submits
     document.addEventListener('click', e => {
-      // if it’s a link…
       if (e.target.closest('a')) {
         document.getElementById('spinner').style.display = 'flex';
       }
     });
     document.addEventListener('submit', e => {
-      document.getElementById('spinner').style.display = 'flex';
-    });
-  </script>  
-
-<script>
-  document.querySelectorAll(".regenerate-btn").forEach(btn => {
-    btn.addEventListener("click", async e => {
-      e.preventDefault();
-      const label = btn.dataset.label;
-      const respId = btn.dataset.target;
-      const box = document.getElementById(respId);
-
-      // show a mini‐spinner in the box
-      const old = box.innerHTML;
-      box.innerHTML = "<em>Generating…</em>";
-
-      try {
-        const res = await fetch("/api/regenerate_section", {
-          method:  "POST",
-          headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ label })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-
-        box.innerHTML = "<strong>AI Response:</strong><br>" 
-                        + data.content;
-      } catch (err) {
-        console.error(err);
-        box.innerHTML = old 
-          + "<p style='color:red;'>Error regenerating this section.</p>";
+      if (!e.target.classList.contains('regenerate-form')) {
+        document.getElementById('spinner').style.display = 'flex';
       }
     });
-  });
-</script>
+  </script>
 
+  <script>
+    const API_URL = "{{ url_for('api_regenerate_section') }}";
 
+    document.querySelectorAll(".regenerate-btn").forEach(btn => {
+      btn.addEventListener("click", async e => {
+        e.preventDefault();
+        const label = btn.dataset.label;
+        const box   = document.getElementById(btn.dataset.target);
+        const old   = box.innerHTML;
+
+        btn.disabled = true;
+        box.innerHTML = "<em>Generating…</em>";
+
+        try {
+          const res = await fetch(API_URL, {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ label })
+          });
+          if (!res.ok) throw new Error(await res.text());
+          const data = await res.json();
+          box.innerHTML = `<strong>AI Response:</strong><br>${data.content}`;
+        } catch (err) {
+          console.error(err);
+          box.innerHTML = old + "<p style='color:red;'>Error regenerating this section.</p>";
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
 </body>
 </html>
