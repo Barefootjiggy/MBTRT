@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import re
 
 from flask import (
     Flask, render_template, request,
@@ -65,20 +66,39 @@ def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
     except Exception as e:
         return {"content": f"[Error generating response: {e}]", "usage": None}
 
+# ————————————————————————————————————————————————————————————————
 def parse_parts(text):
-    """Split the feedback into PART 1…4 sections with custom labels."""
+    """
+    Split the feedback into exactly five pieces:
+      1. Client Info
+      2. Part 1: HOW I ATE
+      3. Part 2: MY WORKOUT
+      4. Part 3: HOW I FEEL
+      5. Part 4: THE NEW ME
+    """
     markers = ["PART 1", "PART 2", "PART 3", "PART 4"]
-    parts   = {}
-    chunks  = text
-    for i, marker in enumerate(markers):
-        if marker in chunks:
-            before, chunks = chunks.split(marker, 1)
-            label = (
-                "Part 1: How I Ate"
-                if i == 0 else f"Part {i + 1}:"
-            )
-            parts[label] = before.strip()
-    parts["Part 4: The New Me"] = chunks.strip()
+    labels  = [
+        "Client Info",
+        "Part 1: HOW I ATE",
+        "Part 2: MY WORKOUT",
+        "Part 3: HOW I FEEL",
+        "Part 4: THE NEW ME",
+    ]
+
+    # split on each marker, but keep the marker tokens
+    tokens = re.split(r"(PART 1|PART 2|PART 3|PART 4)", text)
+
+    parts = {}
+    # tokens looks like: [intro, "PART 1", part1, "PART 2", part2, …, "PART 4", part4]
+    parts[labels[0]] = tokens[0].strip()
+
+    # each marker-content pair lives at odd-even indices
+    for i in range(1, len(tokens), 2):
+        marker  = tokens[i]     # e.g. "PART 1"
+        content = tokens[i+1]   # the text after that marker
+        idx     = markers.index(marker) + 1
+        parts[labels[idx]] = content.strip()
+
     return parts
 
 # ————————————————————————————————————————————————————————————————
@@ -166,9 +186,9 @@ def api_regenerate_section():
     new_content = resp["content"]
 
     # update session store so repeated AJAX calls work
-    cf["generated"][label] = new_content
-    cf["model"]           = model
-    session["current_feedback"] = cf
+    cf["generated"][label]       = new_content
+    cf["model"]                  = model
+    session["current_feedback"]  = cf
 
     return jsonify({
         "label":   label,
@@ -184,20 +204,20 @@ def logout():
 def mock_dashboard():
     """Stand-in data for demo_login → dashboard."""
     session["dashboard"] = {
-        "weekend_reports": [],
+        "weekend_reports":      [],
         "waiting_for_response": [
             {
-                "name":            "Jane Doe (Silver)",
-                "date":            "2025-04-22",
-                "submitted_when":  "just now",
-                "id":              "MOCK123"
+                "name":           "Jane Doe (Silver)",
+                "date":           "2025-04-22",
+                "submitted_when": "just now",
+                "id":             "MOCK123"
             }
         ],
         "feedback_report": {
-            "Missed 5+ Days": [],
-            "Missed 4 Days":  [],
-            "Missed 3 Days":  [],
-            "Missed 2 Days":  [],
+            "Missed 5+ Days":   [],
+            "Missed 4 Days":    [],
+            "Missed 3 Days":    [],
+            "Missed 2 Days":    [],
             "Missed Yesterday": []
         }
     }
