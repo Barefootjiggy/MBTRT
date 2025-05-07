@@ -109,12 +109,6 @@ def parse_parts(text):
 def landing():
     return render_template("landing.html")
 
-@app.route("/demo_login")
-def demo_login():
-    session["email"]    = "USER@demo.com"
-    session["password"] = "DEMO_PASS"
-    return redirect(url_for("mock_dashboard"))
-
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if request.method == "POST":
