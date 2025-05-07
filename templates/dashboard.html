@@ -94,7 +94,8 @@
 <body>
 
   <div style="text-align: right; margin-bottom: 10px;">
-    <form action="{{ url_for('dashboard') }}?refresh=true" method="post" style="display: inline-block;">
+    <form action="{{ url_for('dashboard') }}" method="get" style="display:inline-block;">
+      <input type="hidden" name="refresh" value="true">
       <button type="submit" class="button-link">🔁 Refresh Now</button>
     </form>
 
