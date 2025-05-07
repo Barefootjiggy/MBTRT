@@ -147,11 +147,22 @@ def generate(client_id, date):
         return redirect("/")
 
     feedback_text = get_client_feedback_by_id(email, password, client_id, date)
+
+    # 2) Look up the client name from your cached dashboard
+    dashboard = session.get("dashboard", {})
+    waiting   = dashboard.get("waiting_for_response", [])
+    match     = next(
+        (c for c in waiting if str(c.get("id")) == str(client_id)),
+        None
+    )
+    client_name = match["name"] if match and "name" in match else f"Client {client_id}"
+    
     parts         = parse_parts(feedback_text)
     # no AI calls here—just placeholders
     responses     = { label: None for label in parts }
 
     session["current_feedback"] = {
+        "client_name": client_name,
         "client_id":  client_id,
         "date":       date,
         "parts":      parts,
@@ -164,6 +175,7 @@ def generate(client_id, date):
     return render_template(
         "client_feedback.html",
         client_id=     client_id,
+        client_name=   client_name,
         date=          date,
         parts=         parts,
         responses=     responses
