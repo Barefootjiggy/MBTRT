@@ -68,14 +68,6 @@ def generate_response(feedback, model_name="gpt-3.5-turbo", section=None):
 
 # ————————————————————————————————————————————————————————————————
 def parse_parts(text):
-    """
-    Split the feedback into exactly five pieces:
-      1. Client Info
-      2. Part 1: HOW I ATE
-      3. Part 2: MY WORKOUT
-      4. Part 3: HOW I FEEL
-      5. Part 4: THE NEW ME
-    """
     markers = ["PART 1", "PART 2", "PART 3", "PART 4"]
     labels  = [
         "Client Info",
@@ -85,19 +77,30 @@ def parse_parts(text):
         "Part 4: THE NEW ME",
     ]
 
-    # split on each marker, but keep the marker tokens
     tokens = re.split(r"(PART 1|PART 2|PART 3|PART 4)", text)
-
     parts = {}
-    # tokens looks like: [intro, "PART 1", part1, "PART 2", part2, …, "PART 4", part4]
-    parts[labels[0]] = tokens[0].strip()
+    parts[labels[0]] = extract_client_info(tokens[0])
+  # Client Info
 
-    # each marker-content pair lives at odd-even indices
     for i in range(1, len(tokens), 2):
-        marker  = tokens[i]     # e.g. "PART 1"
-        content = tokens[i+1]   # the text after that marker
+        marker  = tokens[i]
+        content = tokens[i+1]
         idx     = markers.index(marker) + 1
-        parts[labels[idx]] = content.strip()
+        label   = labels[idx]
+
+        # Apply custom cleaner based on the section
+        if label == "Part 1: HOW I ATE":
+            cleaned = clean_part_1(content)
+        elif label == "Part 2: MY WORKOUT":
+            cleaned = clean_part_2(content)
+        elif label == "Part 3: HOW I FEEL":
+            cleaned = clean_part_3(content)
+        elif label == "Part 4: THE NEW ME":
+            cleaned = clean_part_4(content)
+        else:
+            cleaned = content.strip()
+
+        parts[label] = cleaned
 
     return parts
 
@@ -108,7 +111,7 @@ def landing():
 
 @app.route("/demo_login")
 def demo_login():
-    session["email"]    = "DEMO_USER"
+    session["email"]    = "USER@demo.com"
     session["password"] = "DEMO_PASS"
     return redirect(url_for("mock_dashboard"))
 
@@ -138,6 +141,53 @@ def dashboard():
     return render_template("dashboard.html", **data)
 
 # ————————————————————————————————————————————————————————————————
+def extract_client_info(text):
+    """
+    Trim UI clutter and return only relevant client info sentences.
+    """
+    # 1. Cut off everything after "Show Details"
+    snippet = re.split(r'(?i)\bshow details\b', text)[0]
+
+    # 2. Break into sentences
+    sentences = re.split(r'(?<=[\.\?!])\s+', snippet)
+
+    keywords = [
+        "phone call", "beginning weight", "current weight",
+        "lost", "Consistency", "Total weight loss"
+    ]
+
+    # 3. Find the index of the first sentence that contains any keyword
+    start = next((i for i, s in enumerate(sentences) if any(kw in s for kw in keywords)), 0)
+
+    # 4. Only keep sentences from that point onward
+    cleaned = [
+        s.strip() for s in sentences[start:]
+        if any(kw in s for kw in keywords)
+    ]
+
+    return " ".join(cleaned)
+
+def clean_part_1(text):
+    """Keep meals and ratings, cut intro."""
+    match = re.search(r"(Rate how well you ate today.*?)Tutor Feedback", text, flags=re.DOTALL | re.IGNORECASE)
+    return match.group(1).strip() if match else text.strip()
+
+def clean_part_2(text):
+    """Keep movement details, remove leading ': MY MOVEMENT' and cut at Tutor Feedback."""
+    text = re.sub(r"^:? ?MY MOVEMENT", "", text.strip(), flags=re.IGNORECASE)
+    return re.split(r'Tutor Feedback', text, flags=re.IGNORECASE)[0].strip()
+
+
+def clean_part_3(text):
+    """Keep feelings, goals. Remove leading ': HOW I FEEL' and cut at Tutor Feedback."""
+    text = re.sub(r"^:? ?HOW I FEEL", "", text.strip(), flags=re.IGNORECASE)
+    return re.split(r'Tutor Feedback', text, flags=re.IGNORECASE)[0].strip()
+
+def clean_part_4(text):
+    """Keep gratitude, tomorrow tasks. Remove ': THE NEW ME' and cut off at Questions or Comments or Tutor Feedback."""
+    text = re.sub(r"^:? ?THE NEW ME", "", text.strip(), flags=re.IGNORECASE)
+    return re.split(r'(Questions or Comments|Tutor Feedback|Adam\'s Food For Thought)', text, flags=re.IGNORECASE)[0].strip()
+
 @app.route("/generate/<client_id>/<date>", methods=["GET"])
 @app.route("/generate/<client_id>/<date>/", methods=["GET"])
 def generate(client_id, date):
