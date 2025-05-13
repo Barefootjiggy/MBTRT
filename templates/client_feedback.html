@@ -106,40 +106,41 @@
 
     <!-- EACH PART -->
     {% for label, original in parts.items() %}
-      <div class="part-section">
-        <h3>{{ label }}</h3>
+  <div class="part-section">
+    <h3>{{ label }}</h3>
 
-        <div class="feedback-box">
-          {{ original }}
-        </div>
+    <div class="feedback-box">
+      {{ original }}
+    </div>
 
-        <div class="ai-response-box" id="resp-{{ loop.index }}">
-          <strong>AI Response:</strong><br>
-          {{ responses[label] or "None" }}
-        </div>
-        
-        <!-- per‐section controls -->
-        <div class="regenerate-form">
-          <select class="section-model-select" data-label="{{ label }}">
-            <option value="gpt-3.5-turbo"
-              {% if model_selected=='gpt-3.5-turbo' %}selected{% endif %}>
-              General
-            </option>
-            <option value="gpt-4"
-              {% if model_selected=='gpt-4' %}selected{% endif %}>
-              Specific
-            </option>
-          </select>
-          <button
-            type="button"
-            class="button-link regenerate-btn"
-            data-label="{{ label }}"
-            data-target="resp-{{ loop.index }}">
-            🔄 Generate This Section
-          </button>
-        </div>
+    {% if label != "Client Info" %}
+      <div class="ai-response-box" id="resp-{{ loop.index }}">
+        <strong>AI Response:</strong><br>
+        {{ responses[label] or "None" }}
       </div>
-    {% endfor %}
+
+      <div class="regenerate-form">
+        <select class="section-model-select" data-label="{{ label }}">
+          <option value="gpt-3.5-turbo"
+            {% if model_selected=='gpt-3.5-turbo' %}selected{% endif %}>
+            General
+          </option>
+          <option value="gpt-4"
+            {% if model_selected=='gpt-4' %}selected{% endif %}>
+            Specific
+          </option>
+        </select>
+        <button
+          type="button"
+          class="button-link regenerate-btn"
+          data-label="{{ label }}"
+          data-target="resp-{{ loop.index }}">
+          🔄 Generate This Section
+        </button>
+      </div>
+    {% endif %}
+  </div>
+{% endfor %}
   </div>
 
   <!-- full‐page spinner (left in place per your original) -->
