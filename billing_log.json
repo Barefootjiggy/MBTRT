@@ -88,5 +88,15 @@
       "input": 193,
       "output": 328
     }
+  },
+  "2025-05-13": {
+    "gpt-3.5-turbo": {
+      "input": 198,
+      "output": 231
+    },
+    "gpt-4": {
+      "input": 0,
+      "output": 0
+    }
   }
 }
