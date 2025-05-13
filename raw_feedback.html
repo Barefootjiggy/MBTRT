@@ -1,0 +1,619 @@
+<html class="fa-events-icons-ready whatinput-types-initial" data-whatinput="initial" data-whatintent="initial"><head>
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<title>MyBodyTutor: Feedbacks</title>
+    <link href="https://fonts.googleapis.com/css?family=Archivo+Narrow:400,400i,700,700i" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Archivo+Black" rel="stylesheet">
+	<script src="//use.fontawesome.com/3835b05684.js"></script><link href="https://use.fontawesome.com/3835b05684.css" media="all" rel="stylesheet">
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+
+	<!-- Fancybox CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
+
+	<!-- Fancybox JS -->
+	<script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="/app/webroot/css/foundationapp.css"><link rel="stylesheet" type="text/css" href="/app/webroot/css/jquery.rating.css"><link rel="stylesheet" type="text/css" href="/app/webroot/css/clusterizev3.css"><link rel="stylesheet" type="text/css" href="/app/webroot/css/foundation-datepicker.css"><link rel="stylesheet" type="text/css" href="/app/webroot/css/toastr.css"><script type="text/javascript" src="/app/webroot/js/jquery.rating.js"></script><script type="text/javascript" src="/app/webroot/js/clusterize.min.js"></script><script type="text/javascript" src="/app/webroot/js/store/dist/store.everything.min.js"></script><script type="text/javascript" src="/app/webroot/js/toastr.js"></script><script type="text/javascript" src="/app/webroot/js/chartist.min.js"></script><script type="text/javascript" src="/app/webroot/js/chartist-pointlabels.js"></script>	 
+	 	 
+	<!--[if IE]>
+			<![endif]-->
+		<script type="text/javascript">
+		function loadingScreen(){
+			var ldiv = document.getElementById('LoadingDiv');
+			ldiv.style.display = 'block';
+		}
+		
+		function hideLoadingScreen(){
+			var ldiv = document.getElementById('LoadingDiv');
+			ldiv.style.display = 'none';
+		}
+	
+		window.onunload = function(){};
+		$( window ).on( "load", hideLoadingScreen );
+	</script>
+<meta class="foundation-mq"></head>
+<body>
+  	<div id="LoadingDiv" style="display:none;">
+		<img src="/app/webroot/img/ajax-loader.gif" alt="">	</div>
+
+  	<header>
+		<!-- Top Bar -->
+		<div class="top-bar" id="topBarMenu">
+		  <div class="top-bar-left">
+		    <ul class="menu">
+		      <li class="menu-text">
+			  				                                				                
+				Hello, Amanda! 
+					
+		      </li>
+		      <!--<li><a href="/index.php/users/logout">Logout</a></li> -->
+		    </ul>
+		  </div>
+		  <div class="top-bar-right">
+		    <ul class="menu">
+			  			      <li><a href="/index.php/users/edit" class="userOption" onclick="loadingScreen()">My Account</a></li>
+				  <li><a href="https://help.mybodytutor.com" class="userOption" target="_blank">Help</a></li>
+			      <li><a href="/index.php/users/logout" class="userOption" onclick="loadingScreen()">Logout</a></li>
+			  	
+			  			  		    </ul>
+		  </div>
+		</div>
+		<!-- /Top Bar -->
+  <!-- logo & menu -->
+  <section id="logoMenu">
+	  <div class="row small-collapse medium-uncollapse">
+	    <div class="small-7 medium-4 columns">
+		    <img src="/app/webroot/img/BodyTutorLogo.png" alt="">	    </div>
+	    <div class="small-5 medium-8 columns">
+				 <div id="mobileMenu" class="title-bar" data-responsive-toggle="main-menu" data-hide-for="medium" style="display: none;">
+				    <button class="menu-icon" type="button" data-toggle=""><i class="fa fa-bars" aria-hidden="true"></i></button>
+				    <div class="title-bar-title">MENU</div>
+				  </div>
+		
+				  <div id="main-menu">
+				    <ul class="menu vertical medium-horizontal expanded medium-text-center dropdown" data-responsive-menu="drilldown medium-dropdown" role="menubar" data-dropdown-menu="sehqdc-dropdown-menu" data-mutate="cot2gu-responsive-menu">
+			<li role="menuitem"><a href="/index.php/people/tutor_view/" onclick="loadingScreen()">Home</a></li>
+				    						        		
+						<li class="has-submenu is-dropdown-submenu-parent opens-right" role="menuitem" aria-haspopup="true" aria-label="Clients"><a href="#">Clients</a>
+		<ul class="submenu menu vertical is-dropdown-submenu first-sub" data-submenu="" role="menu">
+			<li role="menuitem" class="is-submenu-item is-dropdown-submenu-item"><a href="/index.php/users/tutor_add" onclick="loadingScreen()">Add New Client</a></li>
+			<li role="menuitem" class="is-submenu-item is-dropdown-submenu-item"><a href="/index.php/users/tutor_index" onclick="loadingScreen()">Manage Clients</a></li>
+			<li role="menuitem" class="is-submenu-item is-dropdown-submenu-item"><a href="/index.php/feedbacks/client_search/" onclick="loadingScreen()">Monthly Feedbacks</a></li>
+					</ul>
+	</li>
+	<li role="menuitem"><a href="/index.php/users/articles/" onclick="loadingScreen()">Articles &amp; Recipes</a></li>
+	<li role="menuitem"><a href="https://3.basecamp.com/4526170/projects/17272682" target="_blank" rel="noreferrer">Tutor Hub</a></li>
+			       				                    		
+	
+
+
+				    </ul>
+				  </div>      
+				
+	    </div>
+	  </div>
+  </section>
+  <!-- / logo & menu -->
+  	</header>
+            <main>
+    <section id="firstSection">
+
+			 	
+    						        		
+					<div class="row">
+													<div class="small-12 medium-12 columns">
+								                    	            
+				<style type="text/css"> 
+.phoneInfo {
+	padding: 5px;
+	border: 1px solid #CCC; 
+	margin: 5px 0;
+	background: #DDFFFF;
+}
+
+.phoneWarning {
+	padding: 5px;
+	border: 1px solid #CCC; 
+	margin: 5px 0;      
+	background: #FFFFCC;
+}
+
+.phoneGood {
+	padding: 5px;
+	border: 1px solid #CCC; 
+	margin: 5px 0;      
+	background: #DDFFDD;
+}
+
+.phoneDanger {
+	padding: 5px;
+	border: 1px solid #CCC; 
+	margin: 5px 0;      
+	background: #FFDDDD;
+}
+</style>
+<script type="text/javascript">
+var feedbackId = 1137691;
+var tutorId = 7085;
+var clientId = 8594;
+</script>
+
+<script type="text/javascript" src="/app/webroot/js/tutor-edit-v10.js"></script>
+
+<div class="row">
+<div class="small-12 columns">
+
+<br>
+<nav aria-label="You are here:" role="navigation">
+  <ul class="breadcrumbs">
+    <li><a href="/index.php/people/client_view" onclick="loadingScreen()">Home</a></li>
+    <li>
+      <span class="show-for-sr">Current: </span> Feedback
+    </li>
+  </ul>
+</nav>
+<h5 class="text-center">Provide Feedback for Monday, May 12 Log</h5>
+<div class="callout">
+<script language="javascript"> 
+function toggle() {
+	var ele = document.getElementById("toggleText");
+	var text = document.getElementById("displayText");
+	if(ele.style.display == "block") {
+    	ele.style.display = "none";
+		text.innerHTML = "Show Details";
+  	}
+	else {
+		ele.style.display = "block";
+		text.innerHTML = "Hide Details";
+	}
+}
+
+function toggleWeight() {
+	var ele = document.getElementById("toggleWeightText");
+	var text = document.getElementById("displayWeightText");
+	if(ele.style.display == "block") {
+    	ele.style.display = "none";
+		text.innerHTML = "Edit Weight";
+  	}
+	else {
+		ele.style.display = "block";
+		text.innerHTML = "Close Weight Entry";
+	}
+}
+
+function togglePhone() {
+	var ele = document.getElementById("togglePhonelogs");
+	var text = document.getElementById("displayPhonelogs");
+	if(ele.style.display == "block") {
+    	ele.style.display = "none";
+		text.innerHTML = "add a phone log";
+  	}
+	else {
+		ele.style.display = "block";
+		text.innerHTML = "hide the new phone log";
+	}
+}
+
+function toggleViewPhoneLogs() {
+	var ele = document.getElementById("toggleViewPhonelogs");
+	var text = document.getElementById("displayViewPhonelogs");
+	if(ele.style.display == "block") {
+    	ele.style.display = "none";
+		text.innerHTML = "view all logs";
+  	}
+	else {
+		ele.style.display = "block";
+		text.innerHTML = "hide all logs";
+	}
+}
+
+function submitCheck() {
+	var r = confirm("Do you really want to submit the feedback?");
+	if (!r) {
+		hideLoadingScreen();
+	}
+	return r;
+}
+
+$(document).ready(function() {
+	$(function() {
+		$( "#call_date" ).fdatepicker();
+	});
+	
+	$(function() {
+		$( "#tutor_weight_date" ).fdatepicker();
+	});
+	
+	$("[data-fancybox]").fancybox();
+
+	});
+</script>
+
+<form action="/index.php/feedbacks/tutor_edit/2025-05-12/8594" id="FeedbackTutorEditForm" method="post" accept-charset="utf-8"><div style="display:none;"><input type="hidden" name="_method" value="PUT"></div>
+
+<div>
+<p>Please provide your client, <strong>Susan Mitchell</strong>, with feedback below for their Monday (May 12) log.</p>
+			<div class="phoneDanger">
+		Susan Mitchell's last phone call was 96 days ago. You can <a id="displayPhonelogs" href="javascript:togglePhone();">add a phone log</a> or <a id="displayViewPhonelogs" href="javascript:toggleViewPhoneLogs();">view all logs</a>.
+	</div>
+		<div id="togglePhonelogs" style="display: none" class="callout secondary">
+		<div style="display: inline-block;">
+			<p>Date of call (MM/DD/YYYY): <input type="text" id="call_date" value="05/13/2025" style="width: 200px;"></p>
+		</div>
+		<div style="display: inline-block; vertical-align: bottom;">
+			<button class="button small" id="ajax-button-phonelog" type="button">Save Phone Log</button>
+		</div>
+				<div>
+			<a href="javascript:togglePhone();"><u>Close box</u></a>
+			<br><b>Note:</b> New phone logs won't appear in the list immediately after saving. The web page needs to be refreshed to see it.
+		</div>
+	</div>
+	<div id="toggleViewPhonelogs" style="display: none" class="callout secondary">
+	<table class="stack">
+	<tbody><tr class="feedback">
+		<td><strong>Date</strong></td><td><strong>Tutor</strong></td>
+	</tr>
+	<tr class="feedback"><td>February 06, 2025</td><td>Amanda Snyder</td></tr><tr class="feedback"><td>January 03, 2025</td><td>Amanda Snyder</td></tr><tr class="feedback"><td>November 28, 2024</td><td>Micki Hildreth</td></tr><tr class="feedback"><td>November 21, 2024</td><td>Micki Hildreth</td></tr>	</tbody></table>
+	<p>Note: This list may not show a phone log if you've just added it. Please refresh the page to see them, if needed.</p>
+	<p><a href="javascript:toggleViewPhoneLogs();"><u>Close box</u></a></p>
+	</div>
+
+<br>They committed to exercising <strong>6</strong> times this week. They have <strong>4</strong> more to go!<br>
+Susan Mitchell's beginning weight was <b>172lbs. (78 kgs.)</b> and current weight is <b>168lbs. (76.2 kgs.)</b><br>
+Susan Mitchell lost <b>0.8</b> pounds (<b>0.4</b> kgs) from 4/28 to 5/02. Consistency for May is <b>92%</b>.
+<br>
+Total weight loss is <b>4lbs. (1.8 kgs.)</b><br><br><a id="displayText" class="button secondary small" href="javascript:toggle();">Show Details</a>
+
+
+
+<div id="toggleText" style="display: none" class="callout secondary">
+<a id="displayWeightText" class="button secondary small" href="javascript:toggleWeight();">Edit Weight</a>
+<div id="toggleWeightText" style="display: none; background-color: white;" class="callout secondary">
+	<div style="display: inline-block; padding-right: 30px;">
+		<p>Date of weigh-in (MM/DD/YYYY): <input type="text" id="tutor_weight_date" value="05/13/2025" style="width: 200px;"></p>
+	</div>
+	<div style="display: inline-block; padding-right: 30px;">
+		<p>Weight: <input type="number" id="tutor_weight" value="" style="width: 80px;"></p>
+	</div>
+	<div style="display: inline-block; padding-right: 30px;">
+		<p>Unit: 
+			<select id="tutor_weight_unit">
+				<option value="lbs" selected="selected">Pounds</option>
+				<option value="kg">Kilograms</option>
+			</select>
+		</p>
+	</div>
+		<div style="display: inline-block;">
+		<button class="button small" id="ajax-button-weightlog" type="button" style="margin-top: 14px;">Save Weight</button>
+	</div>
+	<div>
+		<b>Note:</b> Weight changes won't be reflected in the list immediately. Please refresh the page to see it, if needed.
+	</div>
+</div>
+
+
+
+
+
+<table class="stack">
+<tbody><tr class="feedback">
+<td width="120"><strong>Date</strong></td><td><strong>Weight (lbs)</strong></td><td><strong>Change (lbs)</strong></td>
+</tr>
+<tr class="feedback"><td>2025-05-02</td><td>168 (76.2 kgs)</td><td style="background-color:#DFF0D8;">-0.8 (-0.4 kgs)</td></tr><tr class="feedback"><td>2025-04-28</td><td>168.8 (76.6 kgs)</td><td style="background-color:#FCF8E3;">0 (0 kgs)</td></tr><tr class="feedback"><td>2025-04-04</td><td>168.8 (76.6 kgs)</td><td style="background-color:#DFF0D8;">-0.2 (-0.1 kgs)</td></tr><tr class="feedback"><td>2025-03-30</td><td>169 (76.7 kgs)</td><td style="background-color:#F2DEDE;">2 (0.9 kgs)</td></tr><tr class="feedback"><td>2025-03-09</td><td>167 (75.8 kgs)</td><td style="background-color:#DFF0D8;">-0.5 (-0.2 kgs)</td></tr><tr class="feedback"><td>2025-03-02</td><td>167.5 (76 kgs)</td><td style="background-color:#DFF0D8;">-0.5 (-0.2 kgs)</td></tr><tr class="feedback"><td>2025-02-22</td><td>168 (76.2 kgs)</td><td style="background-color:#DFF0D8;">-1 (-0.5 kgs)</td></tr><tr class="feedback"><td>2025-02-14</td><td>169 (76.7 kgs)</td><td style="background-color:#FCF8E3;">0 (0 kgs)</td></tr><tr class="feedback"><td>2025-02-13</td><td>169 (76.7 kgs)</td><td style="background-color:#DFF0D8;">-1 (-0.5 kgs)</td></tr><tr class="feedback"><td>2025-02-02</td><td>170 (77.1 kgs)</td><td style="background-color:#F2DEDE;">1.8 (0.8 kgs)</td></tr><tr class="feedback"><td>2025-01-06</td><td>168.2 (76.3 kgs)</td><td style="background-color:#DFF0D8;">-0.2 (-0.1 kgs)</td></tr><tr class="feedback"><td>2024-12-28</td><td>168.4 (76.4 kgs)</td><td style="background-color:#F2DEDE;">1 (0.5 kgs)</td></tr><tr class="feedback"><td>2024-12-20</td><td>167.4 (75.9 kgs)</td><td style="background-color:#DFF0D8;">-1.4 (-0.6 kgs)</td></tr><tr class="feedback"><td>2024-12-15</td><td>168.8 (76.6 kgs)</td><td style="background-color:#DFF0D8;">-1.2 (-0.5 kgs)</td></tr><tr class="feedback"><td>2024-12-06</td><td>170 (77.1 kgs)</td><td style="background-color:#DFF0D8;">-1.5 (-0.7 kgs)</td></tr><tr class="feedback"><td>2024-11-29</td><td>171.5 (77.8 kgs)</td><td style="background-color:#FCF8E3;">0 (0 kgs)</td></tr><tr class="feedback"><td>2024-11-28</td><td>171.5 (77.8 kgs)</td><td style="background-color:#DFF0D8;">-0.5 (-0.2 kgs)</td></tr><tr class="feedback"><td>2024-11-22</td><td>172 (78 kgs)</td><td style="background-color:#FCF8E3;">0 (0 kgs)</td></tr></tbody></table>
+</div>
+<hr>
+<h6>PART 1: HOW I ATE</h6>
+<p>Write down everything you ate today (up to 6 meals). If you indulged, tell us why. Of course, what you eat matters. But understanding why is where the real magic happens.</p>
+</div>
+
+ 	<table class="form stack">
+        
+        <tbody><tr>
+ 			<td align="left"><strong>Rate how well you ate today:</strong></td>
+			<td style="min-width: 500px;"><div id="starRating_Feedback_food_rating" style="" class="input"><div class="star-rating-element"><span class="star-rating-control"><div class="rating-cancel" style="display: none;"><a title="Cancel Rating"></a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly star-rating-on"><a title="The Pits!">1</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly star-rating-on"><a title="Mediocre">2</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="Decent">3</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="Good Stuff!">4</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="Amazing">5</a></div></span><input name="data[Feedback][food_rating]" type="radio" title="The Pits!" disabled="disabled" value="1" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][food_rating]" type="radio" checked="checked" title="Mediocre" disabled="disabled" value="2" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][food_rating]" type="radio" title="Decent" disabled="disabled" value="3" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][food_rating]" type="radio" title="Good Stuff!" disabled="disabled" value="4" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][food_rating]" type="radio" title="Amazing" disabled="disabled" value="5" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><span id="starRating_Feedback_food_rating_selected" style="display:none" class="star-rating-readonly"></span><span id="starRating_Feedback_food_rating_hover-box" class="hover-box star-rating-readonly"></span><script type="text/javascript" class="star-rating-readonly">
+//<![CDATA[
+
+    			$('.hover-star').rating({
+					focus: function(value, link){
+						var tip = $('#starRating_Feedback_food_rating_hover-box');
+						tip[0].data = tip[0].data || tip.html();
+						tip.html(link.title || 'value: '+value);
+					},
+					blur: function(value, link){
+						var box = $('#starRating_Feedback_food_rating_hover-box');
+						var sel = $('#starRating_Feedback_food_rating_selected');
+						box.html(sel.html());
+					}
+				});
+    		
+    			$('.hover-star').rating({
+					blur: function(value, link){
+						var box = $('#starRating_Feedback_food_rating_hover-box');
+						var sel = $('#starRating_Feedback_food_rating_selected');
+						box.html(sel.html());
+					}
+				});
+				$('#starRating_Feedback_food_rating .hover-star').click(function() {
+					$('#starRating_Feedback_food_rating_hover-box').text('' + $(this).find('a').attr('title'));			 					
+  					$('#starRating_Feedback_food_rating_selected').text('' + $(this).find('a').attr('title'));
+				});
+				$('#starRating_Feedback_food_rating .rating-cancel').click(function() {
+					$('#starRating_Feedback_food_rating_hover-box').text('');			 					
+  					$('#starRating_Feedback_food_rating_selected').text('');
+				});
+    		
+//]]>
+</script></div></div></td>
+		</tr>
+        <tr>
+            <td align="left"><strong>Cups of water:</strong></td>
+            <td>
+			8			</td>
+		</tr>
+		        <tr>
+            <td align="left"><strong>Meal 1 Time:</strong></td>
+            <td>900</td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top"><strong>Meal 1:</strong></td>
+            <td>
+			MFP - wasn't really hungry            			            </td>
+		</tr>
+						        <tr>
+            <td align="left"><strong>Meal 2 Time:</strong></td>
+            <td>1200</td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top"><strong>Meal 2:</strong></td>
+            <td>
+			MFP - nice beautiful smoothie            			            </td>
+		</tr>
+						        <tr>
+            <td align="left"><strong>Meal 3 Time:</strong></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top"><strong>Meal 3:</strong></td>
+            <td>
+			MFP - here's where I got off track. I was probably tired (also tired from a good workout), hungry and not clear on how I was going to spend my day --- so I snacked.             			            </td>
+		</tr>
+						        <tr>
+            <td align="left"><strong>Meal 4 Time:</strong></td>
+            <td>700</td>
+        </tr>
+        <tr>
+            <td align="left" style="vertical-align:top"><strong>Meal 4:</strong></td>
+            <td>
+			MFP - V2 of the lentil, quinoa burgers. Super yummy. I want to perfect them, then make a big batch to freeze to have available.            			            </td>
+		</tr>
+				        <tr style="background-color: #eff3d9;">
+            <td align="left"><strong>Tutor Feedback:</strong></td>
+            <td><div class="input textarea"><label for="FeedbackMeal4Response"></label><textarea name="data[Feedback][meal_4_response]" rows="5" class="autosave" onblur="saveToLocal('FeedbackMeal4Response')" cols="30" id="FeedbackMeal4Response"></textarea></div></td>
+		</tr>
+										
+        <tr>
+            <td colspan="2"><h6>PART 2: MY MOVEMENT</h6></td>
+        </tr>
+        <tr>
+            <td align="left"><strong>Yesterday I said I would:</strong></td>
+            <td>Strength training w/trainer - 45 mins</td>
+        </tr>
+        <tr>
+ 			<td align="left"><strong>Rate today's activity<br>(Only if you had any):</strong></td>
+			<td><div id="starRating_Feedback_exercise_rating" style="" class="input"><div class="star-rating-element"><span class="star-rating-control"><div class="rating-cancel" style="display: none;"><a title="Cancel Rating"></a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="The Pits!">1</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="Mediocre">2</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="Decent">3</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="Good Stuff!">4</a></div><div class="star-rating rater-0 hover-star star-rating-applied star-rating-readonly"><a title="Amazing">5</a></div></span><input name="data[Feedback][exercise_rating]" type="radio" title="The Pits!" disabled="disabled" value="1" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][exercise_rating]" type="radio" title="Mediocre" disabled="disabled" value="2" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][exercise_rating]" type="radio" title="Decent" disabled="disabled" value="3" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][exercise_rating]" type="radio" title="Good Stuff!" disabled="disabled" value="4" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><input name="data[Feedback][exercise_rating]" type="radio" title="Amazing" disabled="disabled" value="5" class="hover-star star-rating-applied star-rating-readonly" style="display: none;"><span id="starRating_Feedback_exercise_rating_selected" style="display:none" class="star-rating-readonly"></span><span id="starRating_Feedback_exercise_rating_hover-box" class="hover-box star-rating-readonly"></span><script type="text/javascript" class="star-rating-readonly">
+//<![CDATA[
+
+    			$('.hover-star').rating({
+					focus: function(value, link){
+						var tip = $('#starRating_Feedback_exercise_rating_hover-box');
+						tip[0].data = tip[0].data || tip.html();
+						tip.html(link.title || 'value: '+value);
+					},
+					blur: function(value, link){
+						var box = $('#starRating_Feedback_exercise_rating_hover-box');
+						var sel = $('#starRating_Feedback_exercise_rating_selected');
+						box.html(sel.html());
+					}
+				});
+    		
+    			$('.hover-star').rating({
+					blur: function(value, link){
+						var box = $('#starRating_Feedback_exercise_rating_hover-box');
+						var sel = $('#starRating_Feedback_exercise_rating_selected');
+						box.html(sel.html());
+					}
+				});
+				$('#starRating_Feedback_exercise_rating .hover-star').click(function() {
+					$('#starRating_Feedback_exercise_rating_hover-box').text('' + $(this).find('a').attr('title'));			 					
+  					$('#starRating_Feedback_exercise_rating_selected').text('' + $(this).find('a').attr('title'));
+				});
+				$('#starRating_Feedback_exercise_rating .rating-cancel').click(function() {
+					$('#starRating_Feedback_exercise_rating_hover-box').text('');			 					
+  					$('#starRating_Feedback_exercise_rating_selected').text('');
+				});
+    		
+//]]>
+</script></div></div></td>
+		</tr>
+		        <tr>
+ 			<td align="left"><strong>Tell me what you achieved today:</strong></td>
+			<td>
+				Strength training w/trainer - 45 mins<br>
+Pickleball clinic - 60 mins			</td>
+		</tr>
+        <tr>
+ 			<td align="left"><strong>Tell me what you commit to achieving tomorrow:</strong></td>
+			<td>
+			Yoga - 60 mins			</td>
+		</tr>
+        <tr style="background-color: #eff3d9;">
+ 			<td align="left"><strong>Tutor Feedback:</strong></td>
+			<td><div class="input textarea"><label for="FeedbackExerciseResponse"></label><textarea name="data[Feedback][exercise_response]" rows="5" class="autosave keysave" onblur="saveToLocal('FeedbackExerciseResponse')" cols="30" id="FeedbackExerciseResponse"></textarea></div></td>
+		</tr>
+        <tr>
+            <td colspan="2"><h6>PART 3: HOW I FEEL</h6></td>
+        </tr>
+        <tr>
+ 			<td align="left"><strong>Are there any food or movement/activity victories you're excited about?</strong></td>
+			<td>
+						</td>
+		</tr>
+                <tr>
+            <td align="left"><strong>Hours of sleep last night:</strong></td>
+            <td>
+			7.5			</td>
+		</tr>
+        <tr style="background-color: #eff3d9;">
+ 			<td align="left"><strong>Tutor Feedback:</strong></td>
+			<td><div class="input textarea"><label for="FeedbackHealthResponse"></label><textarea name="data[Feedback][health_response]" rows="5" class="autosave keysave" onblur="saveToLocal('FeedbackHealthResponse')" cols="30" id="FeedbackHealthResponse"></textarea></div></td>
+		</tr>
+        <!--
+        <tr>
+ 			<td align="left">Tell me how you felt today:</strong></td>
+			<td></td>
+		</tr>
+        <tr>
+ 			<td align="left">What did you Sacrifice today?:<br />
+            (ex: ice cream, watching TV, etc.)</td>
+			<td></td>
+		</tr>
+        -->
+		        <tr>
+            <td colspan="2"><h6>PART 4: THE NEW ME</h6></td>
+        </tr>
+        						                <tr>
+ 			<td align="left"><strong>Three things I am grateful for today:</strong></td>
+			<td>
+			Moving my body<br>
+Watching videos on dressmaking<br>
+Scoring on a semi-private pickleball lesson			</td>
+		</tr>
+		<tr>
+            <td align="left"><strong>Yesterday I said I would:</strong></td>
+            <td>Check on my dental appt<br>
+Talk to the bank<br>
+Look at new faucets for bathroom</td>
+        </tr>
+        <tr>
+ 			<td align="left"><strong>1-3 tasks I will accomplish tomorrow (not food or movement related):</strong></td>
+			<td>
+			Finance mtg<br>
+Host cousin for lunch<br>
+Host neighbor for dinner			</td>
+		</tr>
+        <tr>
+ 			<td align="left"><strong>Questions or Comments:</strong></td>
+			<td>
+			I had a great exercise day and a not-great food day. I am seeing more clearly how settling back in - even after short trips - is a challenge around food. When I have to get to the store in order to prepare food I struggle. I also feel like I'm floundering a bit as to what to do with my time on that first day back. 			</td>
+		</tr>
+        <tr style="background-color: #eff3d9;">
+ 			<td align="left"><strong>Tutor Feedback:</strong></td>
+			<td><div class="input textarea"><label for="FeedbackNewMeResponse"></label><textarea name="data[Feedback][new_me_response]" rows="5" class="autosave keysave" onblur="saveToLocal('FeedbackNewMeResponse')" cols="30" id="FeedbackNewMeResponse"></textarea></div>			<div style="width: 550px;">---<br>Adam's Food For Thought:<br><br>How much energy we have is impacted by many things, but mainly: <br>
+<br>
+- Sleep<br>
+- What, why, and how we eat<br>
+- Exercise<br>
+- How much water we have<br>
+<br>
+And <br>
+<br>
+- Stress (Having a lot on our mind can make it feel like you're pulling a lead balloon). <br>
+<br>
+The tricky part is: we need energy to do some of these things, but many of these things give us energy too!</div>			<input type="hidden" name="data[Feedback][feedback_id]" value="1137691" id="FeedbackFeedbackId"></td>
+		</tr>
+	</tbody></table>
+	(Before clicking, make sure you provided helpful feedback for <strong>Susan Mitchell</strong>.)
+	<br>
+	<table>
+		<tbody><tr>
+			<td style="text-align: left;"><button class="button secondary" id="javascript-ajax-button" type="button">Save Draft</button></td>
+			<td style="text-align: right;"><div class="submit"><input type="submit" id="submit-button" class="button" value="SUBMIT FEEDBACK" onclick="loadingScreen()"></div></td>
+		</tr>
+	</tbody></table>
+</form></div> <!-- END CALLOUT -->
+    		  </div> <!-- END COLUMNS -->
+</div> <!-- END ROW -->    		    </div></div></section>
+     </main>
+
+<!-- OLD CONTENT CODE -->	
+	<footer>
+		<div class="row align-center">
+		  <div class="column small-12 medium-12 large-12 text-center space_between">
+			    <a target="_blank" href="http://www.mybodytutor.com/blog">MBT Blog</a> | <a href="https://www.mybodytutor.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://www.mybodytutor.com/pages/privacy" target="_blank">Privacy Policy</a> | <a href="https://www.mybodytutor.com/cookie-policy" target="_blank">Cookie Policy</a> | <a href="https://www.mybodytutor.com/disclaimer" target="_blank">Disclaimer</a><br><br>
+		    © 2007-2025 MyBodyTutor, Inc. All rights reserved.</div>
+		</div>
+	</footer>
+<script type="text/javascript" src="/app/webroot/js/foundationapp.js"></script><script type="text/javascript" src="/app/webroot/js/foundation-datepicker.js"></script>        
+	
+
+
+<script type="text/javascript">
+ 
+$(document).ready(function(){
+ 
+    $(".emailQuote").hide();
+    $(".show_hide").show();
+ 
+    $('.show_hide').click(function(){
+		$(".emailQuote").slideToggle();
+    });
+	
+	$(".emailShare").hide();
+    $(".showEmail").show();
+	
+	$('.showEmail').click(function(){
+		$(".emailShare").slideToggle();
+    });
+ 
+	$(".emailShare2").hide();
+    $(".showEmail2").show();
+	
+	$('.showEmail2').click(function(){
+		$(".emailShare2").slideToggle();
+    });
+
+    $(".emailMsg").hide();
+    $(".show_hide").show();
+ 
+    $('.show_hide').click(function(){
+		$(".emailMsg").slideToggle();
+    });
+ 
+});
+
+
+
+function email(value){
+    if(value=="Other"){
+        document.getElementById('emailOther').style.display='block';
+    } else {
+        document.getElementById('emailOther').style.display='none';
+    }
+}
+ 
+function email2(value){
+    if(value=="Other"){
+        document.getElementById('emailOther2').style.display='block';
+    } else {
+        document.getElementById('emailOther2').style.display='none';
+    }
+}
+ 
+</script>
+
+	
+
+<!-- OLD FOOTER CODE -->		
+				
+<!-- OLD FOOTER CODE -->	
+	
+  
+<div class="datepicker datepicker-dropdown dropdown-menu"><div class="datepicker-minutes" style="display: none;"><table class=" table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">13 May 2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="minute active">0:00</span><span class="minute">0:05</span><span class="minute">0:10</span><span class="minute">0:15</span><span class="minute">0:20</span><span class="minute">0:25</span><span class="minute">0:30</span><span class="minute">0:35</span><span class="minute">0:40</span><span class="minute">0:45</span><span class="minute">0:50</span><span class="minute">0:55</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-hours" style="display: none;"><table class=" table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">13 May 2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="hour active">0:00</span><span class="hour">1:00</span><span class="hour">2:00</span><span class="hour">3:00</span><span class="hour">4:00</span><span class="hour">5:00</span><span class="hour">6:00</span><span class="hour">7:00</span><span class="hour">8:00</span><span class="hour">9:00</span><span class="hour">10:00</span><span class="hour">11:00</span><span class="hour">12:00</span><span class="hour">13:00</span><span class="hour">14:00</span><span class="hour">15:00</span><span class="hour">16:00</span><span class="hour">17:00</span><span class="hour">18:00</span><span class="hour">19:00</span><span class="hour">20:00</span><span class="hour">21:00</span><span class="hour">22:00</span><span class="hour">23:00</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-days" style="display: block;"><table class=" table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">May 2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr><tr><th class="dow">Su</th><th class="dow">Mo</th><th class="dow">Tu</th><th class="dow">We</th><th class="dow">Th</th><th class="dow">Fr</th><th class="dow">Sa</th></tr></thead><tbody><tr><td class="day   old">27</td><td class="day   old">28</td><td class="day   old">29</td><td class="day   old">30</td><td class="day  ">1</td><td class="day  ">2</td><td class="day  ">3</td></tr><tr><td class="day  ">4</td><td class="day  ">5</td><td class="day  ">6</td><td class="day  ">7</td><td class="day  ">8</td><td class="day  ">9</td><td class="day  ">10</td></tr><tr><td class="day  ">11</td><td class="day  ">12</td><td class="day   active">13</td><td class="day  ">14</td><td class="day  ">15</td><td class="day  ">16</td><td class="day  ">17</td></tr><tr><td class="day  ">18</td><td class="day  ">19</td><td class="day  ">20</td><td class="day  ">21</td><td class="day  ">22</td><td class="day  ">23</td><td class="day  ">24</td></tr><tr><td class="day  ">25</td><td class="day  ">26</td><td class="day  ">27</td><td class="day  ">28</td><td class="day  ">29</td><td class="day  ">30</td><td class="day  ">31</td></tr><tr><td class="day   new">1</td><td class="day   new">2</td><td class="day   new">3</td><td class="day   new">4</td><td class="day   new">5</td><td class="day   new">6</td><td class="day   new">7</td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-months" style="display: none;"><table class="table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="month">Jan</span><span class="month">Feb</span><span class="month">Mar</span><span class="month">Apr</span><span class="month active">May</span><span class="month">Jun</span><span class="month">Jul</span><span class="month">Aug</span><span class="month">Sep</span><span class="month">Oct</span><span class="month">Nov</span><span class="month">Dec</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-years" style="display: none;"><table class="table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">2020-2029</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="year old">2019</span><span class="year">2020</span><span class="year">2021</span><span class="year">2022</span><span class="year">2023</span><span class="year">2024</span><span class="year active">2025</span><span class="year">2026</span><span class="year">2027</span><span class="year">2028</span><span class="year">2029</span><span class="year old">2030</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><a class="button datepicker-close tiny alert right" style="width: auto; display: none;"><i class="fa fa-remove fa-times fi-x"></i></a></div><div class="datepicker datepicker-dropdown dropdown-menu"><div class="datepicker-minutes" style="display: none;"><table class=" table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">13 May 2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="minute active">0:00</span><span class="minute">0:05</span><span class="minute">0:10</span><span class="minute">0:15</span><span class="minute">0:20</span><span class="minute">0:25</span><span class="minute">0:30</span><span class="minute">0:35</span><span class="minute">0:40</span><span class="minute">0:45</span><span class="minute">0:50</span><span class="minute">0:55</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-hours" style="display: none;"><table class=" table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">13 May 2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="hour active">0:00</span><span class="hour">1:00</span><span class="hour">2:00</span><span class="hour">3:00</span><span class="hour">4:00</span><span class="hour">5:00</span><span class="hour">6:00</span><span class="hour">7:00</span><span class="hour">8:00</span><span class="hour">9:00</span><span class="hour">10:00</span><span class="hour">11:00</span><span class="hour">12:00</span><span class="hour">13:00</span><span class="hour">14:00</span><span class="hour">15:00</span><span class="hour">16:00</span><span class="hour">17:00</span><span class="hour">18:00</span><span class="hour">19:00</span><span class="hour">20:00</span><span class="hour">21:00</span><span class="hour">22:00</span><span class="hour">23:00</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-days" style="display: block;"><table class=" table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">May 2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr><tr><th class="dow">Su</th><th class="dow">Mo</th><th class="dow">Tu</th><th class="dow">We</th><th class="dow">Th</th><th class="dow">Fr</th><th class="dow">Sa</th></tr></thead><tbody><tr><td class="day   old">27</td><td class="day   old">28</td><td class="day   old">29</td><td class="day   old">30</td><td class="day  ">1</td><td class="day  ">2</td><td class="day  ">3</td></tr><tr><td class="day  ">4</td><td class="day  ">5</td><td class="day  ">6</td><td class="day  ">7</td><td class="day  ">8</td><td class="day  ">9</td><td class="day  ">10</td></tr><tr><td class="day  ">11</td><td class="day  ">12</td><td class="day   active">13</td><td class="day  ">14</td><td class="day  ">15</td><td class="day  ">16</td><td class="day  ">17</td></tr><tr><td class="day  ">18</td><td class="day  ">19</td><td class="day  ">20</td><td class="day  ">21</td><td class="day  ">22</td><td class="day  ">23</td><td class="day  ">24</td></tr><tr><td class="day  ">25</td><td class="day  ">26</td><td class="day  ">27</td><td class="day  ">28</td><td class="day  ">29</td><td class="day  ">30</td><td class="day  ">31</td></tr><tr><td class="day   new">1</td><td class="day   new">2</td><td class="day   new">3</td><td class="day   new">4</td><td class="day   new">5</td><td class="day   new">6</td><td class="day   new">7</td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-months" style="display: none;"><table class="table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">2025</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="month">Jan</span><span class="month">Feb</span><span class="month">Mar</span><span class="month">Apr</span><span class="month active">May</span><span class="month">Jun</span><span class="month">Jul</span><span class="month">Aug</span><span class="month">Sep</span><span class="month">Oct</span><span class="month">Nov</span><span class="month">Dec</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><div class="datepicker-years" style="display: none;"><table class="table-condensed"><thead><tr><th class="prev" style="visibility: visible;"><i class="fa fa-chevron-left fi-arrow-left"></i></th><th colspan="5" class="date-switch">2020-2029</th><th class="next" style="visibility: visible;"><i class="fa fa-chevron-right fi-arrow-right"></i></th></tr></thead><tbody><tr><td colspan="7"><span class="year old">2019</span><span class="year">2020</span><span class="year">2021</span><span class="year">2022</span><span class="year">2023</span><span class="year">2024</span><span class="year active">2025</span><span class="year">2026</span><span class="year">2027</span><span class="year">2028</span><span class="year">2029</span><span class="year old">2030</span></td></tr></tbody><tfoot><tr><th colspan="7" class="today" style="display: none;">Today</th></tr></tfoot></table></div><a class="button datepicker-close tiny alert right" style="width: auto; display: none;"><i class="fa fa-remove fa-times fi-x"></i></a></div></body></html>

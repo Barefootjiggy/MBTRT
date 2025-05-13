@@ -93,9 +93,44 @@ def parse_parts(text):
 
     return parts
 
+def extract_star_rating_from_html(html):
+    rating_map = {
+        "The Pits!": 1,
+        "Mediocre": 2,
+        "Decent": 3,
+        "Good Stuff!": 4,
+        "Amazing": 5
+    }
+    matches = re.findall(r'<input[^>]+type="radio"[^>]+title="([^"]+)"[^>]+checked', html)
+    if matches:
+        label = matches[0]  # e.g., "Mediocre"
+        return rating_map.get(label, None)
+    return None
+
+
 def clean_part_1(text):
-    match = re.search(r"(Rate.*?)(Tutor Feedback|Adam's Food For Thought|$)", text, re.DOTALL)
-    return match.group(1).strip() if match else text.strip()
+    """
+    Extracts the selected star rating and relevant meal info from Part 1.
+    Assumes the feedback includes a line like: 'Rate how well you ate today: 2'
+    """
+    print("=== PART 1 RAW ===")
+    print(text)
+
+    # Step 1: Extract rating
+    rating_match = re.search(r"Rate how well you ate today:\s*([1-5])", text)
+    rating_line = f"Rate how well you ate today: {rating_match.group(1)} stars" if rating_match else ""
+
+    # Step 2: Remove intro prompt
+    cleaned = re.sub(r"^:? ?HOW I ATE.*?(Rate how well you ate today:\s*[1-5])", "", text, flags=re.DOTALL | re.IGNORECASE)
+
+    # Step 3: Cut off after Tutor Feedback (or similar)
+    content_match = re.split(r"(Tutor Feedback|Adam's Food For Thought)", cleaned, flags=re.IGNORECASE)
+    meal_lines = content_match[0].strip() if content_match else cleaned.strip()
+
+    # Step 4: Combine
+    final_output = rating_line + "\n" + meal_lines.strip()
+    return final_output.strip()
+
 
 def clean_generic_part(text, label):
     text = re.sub(rf"^:? ?{re.escape(label)}", "", text.strip(), flags=re.IGNORECASE)
