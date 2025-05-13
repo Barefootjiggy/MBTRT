@@ -2,7 +2,7 @@ import os
 import time
 import json
 import re
-import redis
+from redis import redis
 from flask import (
     Flask, render_template, request,
     redirect, session, url_for, jsonify
