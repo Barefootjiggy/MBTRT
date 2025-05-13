@@ -79,30 +79,38 @@ def parse_parts(text):
 
     tokens = re.split(r"(PART 1|PART 2|PART 3|PART 4)", text)
     parts = {}
-    parts[labels[0]] = extract_client_info(tokens[0])
-  # Client Info
+
+    parts[labels[0]] = extract_client_info(tokens[0])  # Client Info
 
     for i in range(1, len(tokens), 2):
         marker  = tokens[i]
         content = tokens[i+1]
         idx     = markers.index(marker) + 1
-        label   = labels[idx]
-
-        # Apply custom cleaner based on the section
-        if label == "Part 1: HOW I ATE":
-            cleaned = clean_part_1(content)
-        elif label == "Part 2: MY WORKOUT":
-            cleaned = clean_part_2(content)
-        elif label == "Part 3: HOW I FEEL":
-            cleaned = clean_part_3(content)
-        elif label == "Part 4: THE NEW ME":
-            cleaned = clean_part_4(content)
+        if labels[idx] == "Part 1: HOW I ATE":
+            parts[labels[idx]] = clean_part_1(content)
         else:
-            cleaned = content.strip()
-
-        parts[label] = cleaned
+            parts[labels[idx]] = clean_generic_part(content, marker)
 
     return parts
+
+def clean_part_1(text):
+    match = re.search(r"(Rate.*?)(Tutor Feedback|Adam's Food For Thought|$)", text, re.DOTALL)
+    return match.group(1).strip() if match else text.strip()
+
+def clean_generic_part(text, label):
+    text = re.sub(rf"^:? ?{re.escape(label)}", "", text.strip(), flags=re.IGNORECASE)
+    text = re.split(r'Tutor Feedback|Adam\'s Food For Thought|Save Draft|Terms of Use|Privacy Policy', text, flags=re.IGNORECASE)[0]
+    return text.strip()
+
+def extract_client_info(text):
+    snippet = re.split(r'(?i)show details', text)[0]
+    sentences = re.split(r'(?<=[.?!])\s+', snippet)
+    keywords = [
+        "phone call", "beginning weight", "current weight",
+        "lost", "Consistency", "Total weight loss", "They committed"
+    ]
+    start = next((i for i, s in enumerate(sentences) if any(kw in s for kw in keywords)), 0)
+    return " ".join(s.strip() for s in sentences[start:] if any(kw in s for kw in keywords))
 
 # ————————————————————————————————————————————————————————————————
 @app.route("/")
@@ -111,7 +119,7 @@ def landing():
 
 @app.route("/demo_login")
 def demo_login():
-    session["email"]    = "USER@demo.com"
+    session["email"]    = "DEMO_USER"
     session["password"] = "DEMO_PASS"
     return redirect(url_for("mock_dashboard"))
 
@@ -141,53 +149,6 @@ def dashboard():
     return render_template("dashboard.html", **data)
 
 # ————————————————————————————————————————————————————————————————
-def extract_client_info(text):
-    """
-    Trim UI clutter and return only relevant client info sentences.
-    """
-    # 1. Cut off everything after "Show Details"
-    snippet = re.split(r'(?i)\bshow details\b', text)[0]
-
-    # 2. Break into sentences
-    sentences = re.split(r'(?<=[\.\?!])\s+', snippet)
-
-    keywords = [
-        "phone call", "beginning weight", "current weight",
-        "lost", "Consistency", "Total weight loss"
-    ]
-
-    # 3. Find the index of the first sentence that contains any keyword
-    start = next((i for i, s in enumerate(sentences) if any(kw in s for kw in keywords)), 0)
-
-    # 4. Only keep sentences from that point onward
-    cleaned = [
-        s.strip() for s in sentences[start:]
-        if any(kw in s for kw in keywords)
-    ]
-
-    return " ".join(cleaned)
-
-def clean_part_1(text):
-    """Keep meals and ratings, cut intro."""
-    match = re.search(r"(Rate how well you ate today.*?)Tutor Feedback", text, flags=re.DOTALL | re.IGNORECASE)
-    return match.group(1).strip() if match else text.strip()
-
-def clean_part_2(text):
-    """Keep movement details, remove leading ': MY MOVEMENT' and cut at Tutor Feedback."""
-    text = re.sub(r"^:? ?MY MOVEMENT", "", text.strip(), flags=re.IGNORECASE)
-    return re.split(r'Tutor Feedback', text, flags=re.IGNORECASE)[0].strip()
-
-
-def clean_part_3(text):
-    """Keep feelings, goals. Remove leading ': HOW I FEEL' and cut at Tutor Feedback."""
-    text = re.sub(r"^:? ?HOW I FEEL", "", text.strip(), flags=re.IGNORECASE)
-    return re.split(r'Tutor Feedback', text, flags=re.IGNORECASE)[0].strip()
-
-def clean_part_4(text):
-    """Keep gratitude, tomorrow tasks. Remove ': THE NEW ME' and cut off at Questions or Comments or Tutor Feedback."""
-    text = re.sub(r"^:? ?THE NEW ME", "", text.strip(), flags=re.IGNORECASE)
-    return re.split(r'(Questions or Comments|Tutor Feedback|Adam\'s Food For Thought)', text, flags=re.IGNORECASE)[0].strip()
-
 @app.route("/generate/<client_id>/<date>", methods=["GET"])
 @app.route("/generate/<client_id>/<date>/", methods=["GET"])
 def generate(client_id, date):
@@ -197,6 +158,13 @@ def generate(client_id, date):
         return redirect("/")
 
     feedback_text = get_client_feedback_by_id(email, password, client_id, date)
+
+    # 🔒 Save feedback for replay (skip for MOCK clients)
+    if not client_id.startswith("MOCK"):
+        filename = f"saved_feedback/{client_id}_{date}.txt"
+        os.makedirs("saved_feedback", exist_ok=True)
+        with open(filename, "w") as f:
+            f.write(feedback_text)
 
     # 2) Look up the client name from your cached dashboard
     dashboard = session.get("dashboard", {})
@@ -285,6 +253,56 @@ def mock_dashboard():
     }
     session["last_fetch_time"] = time.time()
     return redirect(url_for("dashboard"))
+
+@app.route("/replay/<client_id>/<date>")
+def replay(client_id, date):
+    try:
+        with open(f"saved_feedback/{client_id}_{date}.txt", "r") as f:
+            feedback_text = f.read()
+    except FileNotFoundError:
+        return f"No saved feedback found for client {client_id} on {date}", 404
+
+    parts = parse_parts(feedback_text)
+    responses = {label: None for label in parts}
+
+    return render_template(
+        "client_feedback.html",
+        client_id=client_id,
+        client_name=f"Replay {client_id}",
+        date=date,
+        parts=parts,
+        responses=responses
+    )
+
+@app.route("/replay_dashboard")
+def replay_dashboard():
+    folder = "saved_feedback"
+    files = []
+
+    if os.path.exists(folder):
+        for fname in os.listdir(folder):
+            if fname.endswith(".txt"):
+                try:
+                    client_id, date = fname.replace(".txt", "").split("_")
+                    files.append({
+                        "client_id": client_id,
+                        "date": date,
+                        "filename": fname
+                    })
+                except ValueError:
+                    continue
+
+    return render_template("replay_dashboard.html", files=sorted(files, key=lambda x: x['date'], reverse=True))
+
+@app.route("/delete_feedback/<filename>", methods=["POST"])
+def delete_feedback(filename):
+    path = os.path.join("saved_feedback", filename)
+    if os.path.exists(path):
+        os.remove(path)
+        return redirect(url_for("replay_dashboard"))
+    return f"File {filename} not found", 404
+
+
 
 # ————————————————————————————————————————————————————————————————
 if __name__ == "__main__":

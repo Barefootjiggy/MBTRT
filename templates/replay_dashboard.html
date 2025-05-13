@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Replay Saved Feedback</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    .replay-list {
+      list-style: none;
+      padding: 0;
+    }
+    .replay-item {
+      margin-bottom: 10px;
+    }
+    a {
+      text-decoration: none;
+      color: #1F4172;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Replay Saved Feedback</h1>
+  <ul class="replay-list">
+    {% for f in files %}
+      <li class="replay-item">
+        <a href="{{ url_for('replay', client_id=f.client_id, date=f.date) }}">
+          {{ f.client_id }} — {{ f.date }}
+        </a>
+        <form action="{{ url_for('delete_feedback', filename=f.filename) }}" method="POST" style="display:inline;">
+          <button type="submit" onclick="return confirm('Delete this saved feedback?');" style="margin-left: 10px;">🗑 Delete</button>
+        </form>
+      </li>
+    {% else %}
+      <li>No saved feedback found yet.</li>
+    {% endfor %}
+  </ul>  
+</body>
+</html>
