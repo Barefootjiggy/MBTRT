@@ -1,5 +1,6 @@
 import os
 import time
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -50,7 +51,17 @@ def get_client_feedback_by_id(email, password, client_id, date):
     time.sleep(3)
 
     try:
-        return driver.find_element(By.TAG_NAME, "body").text
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        star_rating = extract_star_rating_visual(driver)
+        if star_rating is not None:
+            # Replace the text-based placeholder rating line with visual one
+            body_text = re.sub(
+                r"(Rate how well you ate today:\s*)(.*?)(\s*Cups of water:)",
+                rf"\1{'⭐' * star_rating} ({star_rating} stars)\3",
+                body_text,
+                flags=re.DOTALL
+            )
+        return body_text
     except Exception as e:
         print("Error retrieving client feedback:", e)
         return "[Error] Unable to fetch feedback."
@@ -149,3 +160,18 @@ def get_dashboard_sections(email, password):
         "waiting_for_response": waiting_for_response,
         "feedback_report": feedback_report
     }
+
+def extract_star_rating_visual(driver):
+    """
+    Counts how many stars are visually filled in the MyBodyTutor star rating widget.
+    Returns an integer from 1 to 5 (or None if not found).
+    """
+    try:
+        stars = driver.find_elements(
+            By.CSS_SELECTOR, "#starRating_Feedback_food_rating .star-rating-on"
+        )
+        return len(stars)
+    except Exception as e:
+        print("[Rating Extraction Error]:", e)
+        return None
+   
