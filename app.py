@@ -267,6 +267,46 @@ def api_regenerate_section():
         "content": new_content
     })
 
+@app.route("/api/generate_summary", methods=["POST"])
+def api_generate_summary():
+    payload = request.get_json() or {}
+    model   = payload.get("model", "gpt-3.5-turbo")
+
+    cf = session.get("current_feedback", {})
+    parts = cf.get("parts", {})
+
+    # Combine all parts except client info
+    combined_feedback = "\n\n".join(
+        content for label, content in parts.items() if label != "Client Info"
+    )
+
+    prompt = (
+        "Read the following feedback from a client, then provide a short, motivational summary "
+        "and a tip they should keep in mind moving forward.\n\n"
+        f"{combined_feedback}"
+    )
+
+    try:
+        chat = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a supportive and insightful fitness coach."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        usage = chat.usage
+        content = chat.choices[0].message.content.strip()
+
+        # Save to session for consistency (optional)
+        cf["summary"] = content
+        cf["model"] = model
+        session["current_feedback"] = cf
+
+        return jsonify({"content": content})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/logout")
 def logout():
     session.clear()

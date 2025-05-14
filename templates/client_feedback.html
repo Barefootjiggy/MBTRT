@@ -141,7 +141,31 @@
     {% endif %}
   </div>
 {% endfor %}
+
+<!-- SUMMARY SECTION -->
+<div class="part-section">
+  <h3>Client Summary & Tip</h3>
+  <div class="ai-response-box" id="summary-box">
+    <strong>AI Summary:</strong><br>
+    {{ summary or "None" }}
   </div>
+  <div class="regenerate-form">
+    <select id="summary-model-select">
+      <option value="gpt-3.5-turbo"
+        {% if model_selected=='gpt-3.5-turbo' %}selected{% endif %}>
+        General
+      </option>
+      <option value="gpt-4"
+        {% if model_selected=='gpt-4' %}selected{% endif %}>
+        Specific
+      </option>
+    </select>
+    <button type="button" class="button-link" id="generate-summary-btn">
+      🔄 Generate Summary
+    </button>
+  </div>
+</div>
+</div>
 
   <!-- full‐page spinner (left in place per your original) -->
   <div id="spinner">
@@ -193,6 +217,30 @@
         }
       });
     });
+
+    document.getElementById("generate-summary-btn").addEventListener("click", async e => {
+  e.preventDefault();
+  const box = document.getElementById("summary-box");
+  const select = document.getElementById("summary-model-select");
+  const model = select.value;
+
+  const old = box.innerHTML;
+  box.innerHTML = "<em>Generating summary…</em>";
+
+  try {
+    const res = await fetch("/api/generate_summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    box.innerHTML = "<strong>Summary & Tip:</strong><br>" + data.content;
+  } catch (err) {
+    console.error(err);
+    box.innerHTML = old + "<p style='color:red;'>Error generating summary.</p>";
+  }
+});
   </script>
 </body>
 </html>
