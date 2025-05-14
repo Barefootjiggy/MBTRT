@@ -93,8 +93,11 @@ def parse_parts(text):
         marker  = tokens[i]
         content = tokens[i+1]
         idx     = markers.index(marker) + 1
+
         if labels[idx] == "Part 1: HOW I ATE":
             parts[labels[idx]] = clean_part_1(content)
+        elif labels[idx] == "Part 2: MY WORKOUT":
+            parts[labels[idx]] = clean_part_2(content)
         else:
             parts[labels[idx]] = clean_generic_part(content, marker)
 
@@ -138,6 +141,31 @@ def clean_part_1(text):
     final_output = rating_line + "\n" + meal_lines.strip()
     return final_output.strip()
 
+def clean_part_2(text):
+    """
+    Extracts the exercise rating and relevant movement info from Part 2.
+    Assumes the feedback includes a line like:
+    'Rate today's activity (Only if you had any): ⭐⭐⭐⭐ (4 stars)'
+    """
+    print("=== PART 2 RAW ===")
+    print(text)
+
+    # Step 1: Find the rating line (already injected by scraper)
+    rating_match = re.search(
+        r"Rate today's activity\s*\(Only if you had any\):\s*⭐+.*?\(\d stars\)",
+        text
+    )
+    rating_line = rating_match.group(0).strip() if rating_match else ""
+
+    # Step 2: Just keep everything as-is — don’t cut before the rating
+    # We'll simply preserve the full block and remove UI junk after
+    content_after_rating = re.split(
+        r"(Tutor Feedback|Adam's Food For Thought|Save Draft|Terms of Use|Privacy Policy)",
+        text,
+        flags=re.IGNORECASE
+    )[0].strip()
+
+    return content_after_rating
 
 def clean_generic_part(text, label):
     text = re.sub(rf"^:? ?{re.escape(label)}", "", text.strip(), flags=re.IGNORECASE)
