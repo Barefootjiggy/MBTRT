@@ -16,11 +16,15 @@ from scraper import get_dashboard_sections, get_client_feedback_by_id
 # ————————————————————————————————————————————————————————————————
 # Mock override for demo user
 MOCK_FEEDBACK = """
-Hello, this is a mock intro for your feedback page.  
-PART 1: Today I ate an apple and a salad.  
-PART 2: I walked 3 miles.  
-PART 3: I feel energized!  
-PART 4: I plan to keep this up tomorrow.
+John Doe's last phone call was 4 days ago. They committed to exercising 7 times this week. John Doe's beginning weight was 201lbs. (91.17 kgs.) and current weight is 193lbs. Consistency for May is 100%. Total weight loss is 8lbs. 
+
+PART 1: Rate how well you ate today: ⭐⭐⭐⭐ (4 stars) Cups of water: 3 Meal 1 Time: 8:45 a.m. Meal 1: Ate an apple and a banana at 6:30 a.m. Ate 1/2 cup of steel cut oatmeal wtih bluberries, flaxseeds and walnuts at 8:45 a.m. Meal 2 Time: 2 p.m. Meal 2: Ate tofu wtth sliced peppers, onions and mushrooms in a wheat wrap and a salad at 2 p.m. FULLNESS SCALE: 4 Meal 3 Time: 7:30 p.m. Meal 3: Ate 3 small vegan tacos with a small serving of rice and beans and a salad (No Beer or guacamole) and a very small serving of chips at 7:30 p.m. (birthday dinner at a restaurant with my wife at my favorite vegan Mexican restaurant) Did not fast because it was my wife's birthday. Will fast on Wednesday instead. FULLNESS SCALE: 4  
+
+PART 2: MY MOVEMENT Yesterday I said I would: Jog for at least 1 mile. Day #1,170 of the CORE EXERCISE STREAK. Day #1,105 of the UPPER BODY STREAK. Day #7 of the NO SNACKS AFTER DINNER STREAK. Rate today's activity (Only if you had any): ⭐⭐⭐⭐ (4 stars)Tell me what you achieved today: Jogged 1.80 miles. (Day #1,496 of the JOGGING STREAK)(Total Distance Jogged during STREAK: 2,861.78 miles) Day #1,170 of the CORE EXERCISE STREAK. Day #1,105 of the UPPER BODY STREAK. Day #7 of the NO SNACKS AFTER DINNER STREAK. Tell me what you commit to achieving tomorrow: Jog for at least 1 mile. Day #1,171 of the CORE EXERCISE STREAK. Day #1,106 of the UPPER BODY STREAK. Day #8 of the NO SNACKS AFTER DINNER STREAK.  
+
+PART 3: HOW I FEEL Are there any food or movement/activity victories you're excited about? Hours of sleep last night: 7.5  
+
+PART 4: THE NEW ME Three things I am grateful for today: My wife. We celebrated her birthday last night. Yesterday I said I would: 1-3 tasks I will accomplish tomorrow (not food or movement related): Questions or Comments:
 """
 
 _original_get = get_client_feedback_by_id
@@ -353,7 +357,7 @@ def mock_dashboard():
         "weekend_reports":      [],
         "waiting_for_response": [
             {
-                "name":           "Jane Doe (Silver)",
+                "name":           "John Doe (Silver)",
                 "date":           "2025-04-22",
                 "submitted_when": "just now",
                 "id":             "MOCK123"
