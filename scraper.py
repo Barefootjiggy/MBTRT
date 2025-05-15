@@ -52,16 +52,36 @@ def get_client_feedback_by_id(email, password, client_id, date):
 
     try:
         body_text = driver.find_element(By.TAG_NAME, "body").text
+
+        # Extract both ratings
         star_rating = extract_star_rating_visual(driver)
+        exercise_rating = extract_exercise_rating_visual(driver)
+
+        # Save full HTML to inspect later
+        html = driver.page_source
+        with open("raw_feedback.html", "w", encoding="utf-8") as f:
+            f.write(html)
+
+        # Replace food rating line
         if star_rating is not None:
-            # Replace the text-based placeholder rating line with visual one
             body_text = re.sub(
-                r"(Rate how well you ate today:\s*)(.*?)(\s*Cups of water:)",
-                rf"\1{'⭐' * star_rating} ({star_rating} stars)\3",
+                r"(Rate how well you ate today:\s*)(.*?)(\s*(Cups|Ounces) of water:)",
+                rf"\1{'⭐' * star_rating} ({star_rating} {star_word})\3",
                 body_text,
                 flags=re.DOTALL
             )
+
+        # Replace exercise rating line
+        if exercise_rating is not None:
+            body_text = re.sub(
+                r"(Rate today's activity\s*\(Only if you had any\):)\s*[\d\s]+",
+                f"\\1 {'⭐' * exercise_rating} ({exercise_rating} {star_word})",
+                body_text,
+                flags=re.DOTALL
+            )
+
         return body_text
+
     except Exception as e:
         print("Error retrieving client feedback:", e)
         return "[Error] Unable to fetch feedback."
@@ -163,8 +183,7 @@ def get_dashboard_sections(email, password):
 
 def extract_star_rating_visual(driver):
     """
-    Counts how many stars are visually filled in the MyBodyTutor star rating widget.
-    Returns an integer from 1 to 5 (or None if not found).
+    Extracts the food rating (Part 1).
     """
     try:
         stars = driver.find_elements(
@@ -172,6 +191,19 @@ def extract_star_rating_visual(driver):
         )
         return len(stars)
     except Exception as e:
-        print("[Rating Extraction Error]:", e)
+        print("[Food Rating Extraction Error]:", e)
+        return None
+
+def extract_exercise_rating_visual(driver):
+    """
+    Extracts the exercise rating (Part 2).
+    """
+    try:
+        stars = driver.find_elements(
+            By.CSS_SELECTOR, "#starRating_Feedback_exercise_rating .star-rating-on"
+        )
+        return len(stars)
+    except Exception as e:
+        print("[Exercise Rating Extraction Error]:", e)
         return None
    
