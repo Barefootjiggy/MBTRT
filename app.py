@@ -187,10 +187,16 @@ def extract_client_info(text):
 def landing():
     return render_template("landing.html")
 
+@app.route("/replay")
+def replay_saved_feedback():
+    if not session.get("email") or session.get("demo_user"):
+        return redirect(url_for("login"))
+
 @app.route("/demo_login")
 def demo_login():
     session["email"]    = "DEMO_USER"
     session["password"] = "DEMO_PASS"
+    session["demo_user"] = True
     return redirect(url_for("mock_dashboard"))
 
 @app.route("/dashboard", methods=["GET", "POST"])
