@@ -64,6 +64,7 @@ def get_client_feedback_by_id(email, password, client_id, date):
 
         # Replace food rating line
         if star_rating is not None:
+            star_word = "star" if star_rating == 1 else "stars"
             body_text = re.sub(
                 r"(Rate how well you ate today:\s*)(.*?)(\s*(Cups|Ounces) of water:)",
                 rf"\1{'⭐' * star_rating} ({star_rating} {star_word})\3",
@@ -73,6 +74,7 @@ def get_client_feedback_by_id(email, password, client_id, date):
 
         # Replace exercise rating line
         if exercise_rating is not None:
+            star_word = "star" if exercise_rating == 1 else "stars"
             body_text = re.sub(
                 r"(Rate today's activity\s*\(Only if you had any\):)\s*[\d\s]+",
                 f"\\1 {'⭐' * exercise_rating} ({exercise_rating} {star_word})",
