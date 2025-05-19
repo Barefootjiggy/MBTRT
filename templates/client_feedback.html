@@ -19,6 +19,19 @@
     .feedback-header .button-link {
       margin-left: auto;
     }
+    .client-feedback {
+  line-height: 1.5;
+  font-size: 16px;
+    }
+    .client-feedback strong {
+      display: block;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+    .client-feedback br {
+      margin-bottom: 0.5em;
+      display: block;
+    }
     .model-form {
       margin: 20px 0;
       text-align: right;
@@ -109,8 +122,8 @@
   <div class="part-section">
     <h3>{{ label }}</h3>
 
-    <div class="feedback-box">
-      {{ original }}
+    <div class="feedback-box client-feedback">
+      {{ original | safe }}
     </div>
 
     {% if label != "Client Info" %}

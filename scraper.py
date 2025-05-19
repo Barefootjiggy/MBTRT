@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from bs4 import BeautifulSoup
 
 session_driver = None
 
@@ -59,8 +60,7 @@ def get_client_feedback_by_id(email, password, client_id, date):
 
         # Save full HTML to inspect later
         html = driver.page_source
-        with open("raw_feedback.html", "w", encoding="utf-8") as f:
-            f.write(html)
+        meal_images = extract_meal_images_from_html(html)
 
         # Replace food rating line
         if star_rating is not None:
@@ -81,12 +81,49 @@ def get_client_feedback_by_id(email, password, client_id, date):
                 body_text,
                 flags=re.DOTALL
             )
+        
+        body_text = inject_images_to_meals(body_text, meal_images)
+
+        # Group images by nearest meal marker if found
+        meal_blocks = {}
+        for i in range(1, 7):
+            pattern = rf"(Meal {i}:.*?)((Meal \d+:)|$)"
+            match = re.search(pattern, body_text, flags=re.DOTALL)
+            if match:
+                meal_blocks[f"Meal {i}"] = match.group(1).strip()
 
         return body_text
 
     except Exception as e:
         print("Error retrieving client feedback:", e)
         return "[Error] Unable to fetch feedback."
+
+def extract_meal_images_from_html(html):
+    soup = BeautifulSoup(html, "html.parser")
+    meal_images = {f"Meal {i}": [] for i in range(1, 7)}
+
+    for a_tag in soup.find_all("a", attrs={"data-fancybox": True}):
+        key = a_tag.get("data-fancybox")
+        src = a_tag.get("href")
+        if key and src and key.startswith("mealPhotos"):
+            meal_num = key.replace("mealPhotos", "").strip()
+            meal_key = f"Meal {meal_num}"
+            if meal_key in meal_images:
+                meal_images[meal_key].append(src)
+
+    return meal_images
+
+def inject_images_to_meals(body_text, meal_images):
+    for meal_key, urls in meal_images.items():
+        if urls:
+            img_html = "".join([f'<br><img src="{url}" style="max-width:300px;"><br>' for url in urls])
+            body_text = re.sub(
+                rf"({re.escape(meal_key)}:\s*.*?)((?=\s*Meal|\s*$))",
+                rf"\1{img_html}\2",
+                body_text,
+                flags=re.DOTALL
+            )
+    return body_text
 
 def get_dashboard_sections(email, password):
     driver = init_driver(email, password)
