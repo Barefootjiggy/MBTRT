@@ -121,6 +121,42 @@ def extract_star_rating_from_html(html):
         return rating_map.get(label, None)
     return None
 
+def remove_empty_prompts(text):
+    """
+    Removes prompts that have no user input following them.
+    Works across all 4 parts of the MBT feedback.
+    """
+    # Define prompt lines that should be removed if left unanswered
+    prompts = [
+        # Part 1
+        r"Rate how well you ate today:",
+        r"Meal 1 Time:", r"Meal 1:",
+        r"Meal 2 Time:", r"Meal 2:",
+        r"Meal 3 Time:", r"Meal 3:",
+
+        # Part 2
+        r"Yesterday I said I would:",
+        r"Rate today's activity\s*\(Only if you had any\):",
+        r"Tell me what you achieved today:",
+        r"Tell me what you commit to achieving tomorrow:",
+
+        # Part 3
+        r"Are there any food or movement/activity victories you're excited about\?",
+        r"Hours of sleep last night:",
+
+        # Part 4
+        r"Three things I am grateful for today:",
+        r"1-3 tasks I will accomplish tomorrow \(not food or movement related\):",
+        r"Questions or Comments:"
+    ]
+
+    pattern = re.compile(
+        r"(?m)^(" + "|".join(prompts) + r")\s*$",  # Match prompt on its own line with no content after
+        re.IGNORECASE
+    )
+
+    return pattern.sub("", text).strip()
+
 
 def clean_part_1(text):
     """
@@ -143,7 +179,7 @@ def clean_part_1(text):
 
     # Step 4: Combine
     final_output = rating_line + "\n" + meal_lines.strip()
-    return final_output.strip()
+    return remove_empty_prompts(final_output)
 
 def clean_part_2(text):
     """
@@ -169,12 +205,12 @@ def clean_part_2(text):
         flags=re.IGNORECASE
     )[0].strip()
 
-    return content_after_rating
+    return remove_empty_prompts(content_after_rating)
 
 def clean_generic_part(text, label):
     text = re.sub(rf"^:? ?{re.escape(label)}", "", text.strip(), flags=re.IGNORECASE)
     text = re.split(r'Tutor Feedback|Adam\'s Food For Thought|Save Draft|Terms of Use|Privacy Policy', text, flags=re.IGNORECASE)[0]
-    return text.strip()
+    return remove_empty_prompts(text)
 
 def extract_client_info(text):
     snippet = re.split(r'(?i)show details', text)[0]
