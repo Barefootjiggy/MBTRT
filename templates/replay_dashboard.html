@@ -4,47 +4,92 @@
   <title>Replay Saved Feedback</title>
   <link rel="stylesheet" href="/static/style.css">
 
-  <div style="margin-top: 1em;">
-    <a href="{{ url_for('dashboard') }}" class="button-link">← Back to Dashboard</a>
-  </div>
-  
   <style>
     body {
       font-family: sans-serif;
       padding: 2rem;
+      background: url('/static/worklobby.avif') no-repeat center center fixed;
+      background-size: cover;
     }
+
+      .replay-container {
+      background: rgba(255, 255, 255, 0.75); /* translucent white */
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      max-width: 600px;
+      margin: 4rem auto;
+      backdrop-filter: blur(8px); /* adds frosted glass blur */
+      -webkit-backdrop-filter: blur(8px); /* 💡 required for Safari and some Chrome builds */
+}
+
+
     .replay-list {
       list-style: none;
       padding: 0;
+      text-align: left;
     }
+
     .replay-item {
       margin-bottom: 10px;
     }
+
     a {
       text-decoration: none;
       color: #1F4172;
       font-weight: bold;
     }
+
     a:hover {
+      text-decoration: underline;
+    }
+
+    .button-link {
+      display: inline-block;
+      margin-bottom: 1em;
+      background-color: #1F4172;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .button-link:hover {
+      background-color: #132043;
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: red;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
       text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
-  <h1>Replay Saved Feedback</h1>
-  <ul class="replay-list">
-    {% for f in files %}
-      <li class="replay-item">
-        <a href="{{ url_for('replay', client_id=f.client_id, date=f.date) }}">
-          {{ f.client_id }} — {{ f.date }}
-        </a>
-        <form action="{{ url_for('delete_feedback', filename=f.filename) }}" method="POST" style="display:inline;">
-          <button type="submit" onclick="return confirm('Delete this saved feedback?');" style="margin-left: 10px;">🗑 Delete</button>
-        </form>
-      </li>
-    {% else %}
-      <li>No saved feedback found yet.</li>
-    {% endfor %}
-  </ul>  
+  <div class="replay-container">
+    <a href="{{ url_for('dashboard') }}" class="button-link">← Back to Dashboard</a>
+    <h1>Replay Saved Feedback</h1>
+    <ul class="replay-list">
+      {% for f in files %}
+        <li class="replay-item">
+          <a href="{{ url_for('replay', client_id=f.client_id, date=f.date) }}">
+            {{ f.client_id }} — {{ f.date }}
+          </a>
+          <form action="{{ url_for('delete_feedback', filename=f.filename) }}" method="POST" style="display:inline;">
+            <button type="submit" onclick="return confirm('Delete this saved feedback?');">🗑 Delete</button>
+          </form>
+        </li>
+      {% else %}
+        <li>No saved feedback found yet.</li>
+      {% endfor %}
+    </ul>  
+  </div>
 </body>
 </html>
