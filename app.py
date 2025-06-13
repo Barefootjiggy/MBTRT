@@ -2,7 +2,7 @@ import os
 import time
 import json
 import re
-from redis import Redis
+from redis_client import get_redis_client
 from flask_session import Session
 from flask import (
     Flask, render_template, request,
@@ -12,6 +12,20 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from billing_tracker import log_usage
 from scraper import get_dashboard_sections, get_client_feedback_by_id
+
+
+# Bootstrapping
+load_dotenv()
+client = OpenAI()
+
+app = Flask(__name__)
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_REDIS'] = get_redis_client()
+Session(app)
 
 # ————————————————————————————————————————————————————————————————
 # Mock override for demo user
@@ -34,19 +48,11 @@ def get_client_feedback_by_id(email, password, client_id, date):
     return _original_get(email, password, client_id, date)
 
 # ————————————————————————————————————————————————————————————————
-# Bootstrapping
-load_dotenv()
-client = OpenAI()
 
-app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY")
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_PERMANENT'] = False
-app.config['SESSION_USE_SIGNER'] = True
-app.config['SESSION_REDIS'] = Redis.from_url(os.getenv("REDIS_URL"), ssl_cert_reqs=None)
-Session(app)
-
+@app.route("/test-session")
+def test_session():
+    session["hello"] = "world"
+    return f"Session says: {session.get('hello')}"
 
 # per-token rates
 MODEL_RATES = {

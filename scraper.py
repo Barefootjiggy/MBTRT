@@ -126,25 +126,48 @@ def extract_feedback_images_by_section(html):
 
 def inject_images_to_sections(body_text, section_images):
     for section, urls in section_images.items():
-        if urls:
-            img_html = "".join([f'<br><img src="{url}" style="max-width:300px;"><br>' for url in urls])
-            if section.startswith("Meal"):
-                pattern = rf"({re.escape(section)}:\s*.*?)((?=\s*Meal|\s*$))"
+        if not urls:
+            continue
+
+        img_html = "".join(
+            [f'<br><img src="{url}" style="max-width:300px;"><br>' for url in urls]
+        )
+
+        if section.startswith("Meal"):
+            pattern = rf"({re.escape(section)}:\s*)(.*?)(?=\s*Meal|\s*$)"
+            match = re.search(pattern, body_text, flags=re.DOTALL)
+
+            if match:
+                meal_intro = match.group(1)
+                meal_text = match.group(2).strip()
+
+                if not meal_text or meal_text == "-----":
+                    meal_text = "(No meal details provided)"
+
+                updated = f"{meal_intro}{meal_text}<div class='meal-images' style='margin-top:10px; display:block;'>{img_html}</div>"
+                body_text = body_text.replace(match.group(0), updated)
+
+            else:
+                # If no match, inject after section label manually
+                fallback_pattern = rf"({re.escape(section)}:)"
                 body_text = re.sub(
-                    pattern,
-                    rf"\1{img_html}\2",
+                    fallback_pattern,
+                    rf"\1 (No meal details provided)<div class='meal-images' style='margin-top:10px; display:block;'>{img_html}</div>",
                     body_text,
                     flags=re.DOTALL
                 )
-            elif section == "MY WORKOUT":
-                pattern = r"(Rate today's activity\s*\(Only if you had any\):.*?\(.*?\))"
-                body_text = re.sub(
-                    pattern,
-                    rf"\1{img_html}",
-                    body_text,
-                    flags=re.DOTALL
-                )
+
+        elif section == "MY WORKOUT":
+            pattern = r"(Rate today's activity\s*\(Only if you had any\):.*?\(.*?\))"
+            body_text = re.sub(
+                pattern,
+                rf"\1{img_html}",
+                body_text,
+                flags=re.DOTALL
+            )
+
     return body_text
+
 
 def get_dashboard_sections(email, password):
     driver = init_driver(email, password)
